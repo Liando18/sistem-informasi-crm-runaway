@@ -351,38 +351,13 @@ export default function Welcome() {
                             <p className="text-gray-600 mb-6 leading-relaxed text-lg">
                                 Runaway Denim adalah destinasi utama fashion denim di Kota Padang. Kami menghadirkan koleksi jeans, jaket, dan aksesoris denim berkualitas premium dengan harga yang terjangkau.
                             </p>
-                            <p className="text-gray-600 mb-8 leading-relaxed">
+                            <p className="text-gray-600 mb-6 leading-relaxed">
                                 Setiap produk kami pilih dengan teliti untuk memastikan kualitas bahan, kenyamanan, dan desain yang sesuai dengan trend terkini. Kepuasan pelanggan adalah komitmen utama kami.
                             </p>
-                            <div className="space-y-4">
-                                <div className="flex items-start gap-4 p-4 bg-primary-50 rounded-xl">
-                                    <MapPin className="h-5 w-5 text-primary-600 mt-0.5 shrink-0" />
-                                    <div>
-                                        <p className="font-semibold text-gray-900">Alamat</p>
-                                        <p className="text-gray-600">Jl. Ujung Gurun No.49, Kota Padang</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-start gap-4 p-4 bg-primary-50 rounded-xl">
-                                    <Clock className="h-5 w-5 text-primary-600 mt-0.5 shrink-0" />
-                                    <div>
-                                        <p className="font-semibold text-gray-900">Jam Operasional</p>
-                                        <p className="text-gray-600">Senin - Minggu, 12:00 - 22:00 WIB</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-start gap-4 p-4 bg-primary-50 rounded-xl">
-                                    <Phone className="h-5 w-5 text-primary-600 mt-0.5 shrink-0" />
-                                    <div>
-                                        <p className="font-semibold text-gray-900">WhatsApp</p>
-                                        <a href="https://wa.me/6282183539906" target="_blank" className="text-primary-600 hover:text-primary-700 font-medium">0821-8353-9906</a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="mt-8">
-                                <Link href={tentang.url()} className="inline-flex items-center gap-2 bg-primary-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-primary-700 transition-all shadow-lg shadow-primary-200 hover:shadow-primary-300">
-                                    Selengkapnya
-                                    <ChevronRight size={18} />
-                                </Link>
-                            </div>
+                            <Link href={tentang.url()} className="inline-flex items-center gap-2 bg-primary-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-primary-700 transition-all shadow-lg shadow-primary-200 hover:shadow-primary-300">
+                                Selengkapnya
+                                <ChevronRight size={18} />
+                            </Link>
                         </div>
                         <div className="relative">
                             <div className="absolute -inset-4 bg-gradient-to-r from-primary-600 to-primary-600 rounded-3xl blur-2xl opacity-20" />
@@ -522,14 +497,24 @@ export default function Welcome() {
                 </div>
             </footer>
 
-            <a
-                href="https://wa.me/6282183539906"
-                target="_blank"
-                className="fixed bottom-6 right-6 bg-gradient-to-br from-green-400 to-green-600 text-white p-4 rounded-full shadow-2xl hover:shadow-green-500/40 hover:scale-110 transition-all duration-300 z-50 group"
-                aria-label="Chat WhatsApp"
-            >
-                <MessageCircle size={28} className="group-hover:rotate-12 transition-transform" />
-            </a>
+            {auth.user && auth.user.role === 'pelanggan' ? (
+                <Link
+                    href="/chat"
+                    className="fixed bottom-6 right-6 bg-gradient-to-br from-primary-500 to-primary-600 text-white p-4 rounded-full shadow-2xl hover:shadow-primary-500/40 hover:scale-110 transition-all duration-300 z-50 group"
+                    aria-label="Chat"
+                >
+                    <MessageCircle size={28} className="group-hover:rotate-12 transition-transform" />
+                </Link>
+            ) : (
+                <a
+                    href="https://wa.me/6282183539906"
+                    target="_blank"
+                    className="fixed bottom-6 right-6 bg-gradient-to-br from-green-400 to-green-600 text-white p-4 rounded-full shadow-2xl hover:shadow-green-500/40 hover:scale-110 transition-all duration-300 z-50 group"
+                    aria-label="Chat WhatsApp"
+                >
+                    <MessageCircle size={28} className="group-hover:rotate-12 transition-transform" />
+                </a>
+            )}
         </>
     );
 }

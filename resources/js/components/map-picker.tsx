@@ -1,4 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+
+const STORE_LOCATION = { lat: -0.9342817421812004, lng: 100.3598192134916 };
 
 interface MapPickerProps {
     latitude: string;
@@ -9,72 +13,89 @@ interface MapPickerProps {
 
 export default function MapPicker({ latitude, longitude, onChange, readOnly }: MapPickerProps) {
     const mapRef = useRef<HTMLDivElement>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
+    const mapInstance = useRef<L.Map | null>(null);
+    const userMarkerRef = useRef<L.Marker | null>(null);
+    const routeRef = useRef<L.Polyline | null>(null);
 
     useEffect(() => {
-        if (!window.google && !readOnly) {
-            const script = document.createElement('script');
-            script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyDummyKey&callback=initMap`;
-            script.async = true;
-            script.defer = true;
-            script.onerror = () => setError('Gagal memuat peta');
-            window.document.body.appendChild(script);
+        if (!mapRef.current || mapInstance.current) return;
+
+        const defaultLat = parseFloat(latitude) || STORE_LOCATION.lat;
+        const defaultLng = parseFloat(longitude) || STORE_LOCATION.lng;
+
+        delete (L.Icon.Default.prototype as any)._getIconUrl;
+        L.Icon.Default.mergeOptions({
+            iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+            iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+            shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+        });
+
+        const map = L.map(mapRef.current, { scrollWheelZoom: true }).setView([defaultLat, defaultLng], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors',
+        }).addTo(map);
+
+        const storeIcon = L.divIcon({
+            html: '<div style="background:#E11D48;color:white;padding:4px 8px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.2);">🏪 Toko</div>',
+            className: '',
+            iconSize: [60, 30],
+            iconAnchor: [30, 15],
+        });
+        L.marker([STORE_LOCATION.lat, STORE_LOCATION.lng], { icon: storeIcon }).addTo(map);
+
+        const userLat = parseFloat(latitude) || STORE_LOCATION.lat;
+        const userLng = parseFloat(longitude) || STORE_LOCATION.lng;
+        const userMarker = L.marker([userLat, userLng], { draggable: !readOnly }).addTo(map);
+
+        if (!readOnly) {
+            userMarker.on('dragend', () => {
+                const pos = userMarker.getLatLng();
+                onChange('latitude', pos.lat.toFixed(6));
+                onChange('longitude', pos.lng.toFixed(6));
+                fetchRoute(map, pos);
+            });
+            map.on('click', (e: L.LeafletMouseEvent) => {
+                userMarker.setLatLng(e.latlng);
+                onChange('latitude', e.latlng.lat.toFixed(6));
+                onChange('longitude', e.latlng.lng.toFixed(6));
+                fetchRoute(map, e.latlng);
+            });
         }
+
+        mapInstance.current = map;
+        userMarkerRef.current = userMarker;
+
+        if (latitude && longitude && !readOnly) {
+            setTimeout(() => fetchRoute(map, L.latLng(userLat, userLng)), 500);
+        }
+
+        return () => { map.remove(); mapInstance.current = null; userMarkerRef.current = null; };
     }, []);
 
-    if (readOnly) {
-        const src = latitude && longitude
-            ? `https://www.google.com/maps/embed/v1/view?key=AIzaSyDummyKey&center=${latitude},${longitude}&zoom=15`
-            : `https://www.google.com/maps/embed/v1/place?key=AIzaSyDummyKey&q=Jl.+Ujung+Gurun+No.49,+Kota+Padang`;
-
-        return (
-            <div className="w-full h-64 rounded-lg overflow-hidden border">
-                <iframe
-                    src={src}
-                    width="100%"
-                    height="100%"
-                    style={{ border: 0 }}
-                    allowFullScreen
-                    loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
-                />
-            </div>
-        );
+    async function fetchRoute(map: L.Map, dest: L.LatLng) {
+        const src = STORE_LOCATION;
+        try {
+            const res = await fetch(
+                `https://router.project-osrm.org/route/v1/driving/${src.lng},${src.lat};${dest.lng},${dest.lat}?overview=full&geometries=geojson`
+            );
+            const data = await res.json();
+            if (routeRef.current) map.removeLayer(routeRef.current);
+            if (data.code === 'Ok' && data.routes.length > 0) {
+                const coords = data.routes[0].geometry.coordinates.map((c: [number, number]) => [c[1], c[0]] as [number, number]);
+                const polyline = L.polyline(coords, { color: '#E11D48', weight: 4, opacity: 0.7 }).addTo(map);
+                routeRef.current = polyline;
+                map.fitBounds(polyline.getBounds().pad(0.2));
+            }
+        } catch {
+            const straightLine = L.polyline([[src.lat, src.lng], [dest.lat, dest.lng]], { color: '#E11D48', weight: 3, dashArray: '8 8', opacity: 0.5 }).addTo(map);
+            routeRef.current = straightLine;
+            map.fitBounds(straightLine.getBounds().pad(0.2));
+        }
     }
 
     return (
-        <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-                Klik di peta untuk memilih lokasi
-            </label>
-            <div ref={mapRef} className="w-full h-64 rounded-lg border bg-gray-100 flex items-center justify-center">
-                <p className="text-gray-500 text-sm">
-                    {error || 'Peta akan muncul jika API key Google Maps tersedia'}
-                </p>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-                <div>
-                    <label className="block text-xs font-medium text-gray-500">Latitude</label>
-                    <input
-                        type="text"
-                        value={latitude}
-                        onChange={(e) => onChange('latitude', e.target.value)}
-                        placeholder="-0.9554"
-                        className="w-full rounded-lg border-gray-300 border p-2 text-sm focus:ring-2 focus:ring-primary-500"
-                    />
-                </div>
-                <div>
-                    <label className="block text-xs font-medium text-gray-500">Longitude</label>
-                    <input
-                        type="text"
-                        value={longitude}
-                        onChange={(e) => onChange('longitude', e.target.value)}
-                        placeholder="100.3521"
-                        className="w-full rounded-lg border-gray-300 border p-2 text-sm focus:ring-2 focus:ring-primary-500"
-                    />
-                </div>
-            </div>
-        </div>
+        <div ref={mapRef} className="w-full h-80 rounded-lg border z-0" />
     );
 }
+
+export { STORE_LOCATION };

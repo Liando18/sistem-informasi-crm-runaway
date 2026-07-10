@@ -18,6 +18,7 @@ trait ProfileValidationRules
         return [
             'name' => $this->nameRules(),
             'email' => $this->emailRules($userId),
+            'alamat' => ['nullable', 'string', 'max:500'],
         ];
     }
 
@@ -45,7 +46,7 @@ trait ProfileValidationRules
             'max:255',
             $userId === null
                 ? Rule::unique(Akun::class)
-                : Rule::unique(Akun::class)->ignore($userId),
+                : Rule::unique(Akun::class)->ignore($userId, 'id_akun'),
         ];
     }
 }

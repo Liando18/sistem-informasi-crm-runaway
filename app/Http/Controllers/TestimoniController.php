@@ -21,10 +21,10 @@ class TestimoniController extends Controller
             'produk_id' => $produk->id_produk,
             'rating' => $request->rating,
             'komentar' => $request->komentar,
-            'status' => 'menunggu',
+            'status' => 'disetujui',
         ]);
 
-        return redirect()->back()->with('success', 'Testimoni berhasil dikirim dan menunggu persetujuan');
+        return redirect()->back()->with('success', 'Testimoni berhasil dikirim');
     }
 
     public function saya()

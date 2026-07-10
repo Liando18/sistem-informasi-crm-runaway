@@ -15,7 +15,7 @@ class Akun extends Authenticatable
 
     protected $primaryKey = 'id_akun';
 
-    public $incrementing = false;
+    public $incrementing = true;
 
     protected $fillable = [
         'nama',
@@ -36,7 +36,6 @@ class Akun extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
         ];
     }
 

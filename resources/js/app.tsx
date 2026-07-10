@@ -56,6 +56,12 @@ createInertiaApp({
                 return AuthLayout
             case name.startsWith('admin/'):
                 return AdminLayout
+            case name === 'owner/laporan/cetak-stok':
+                return null
+            case name === 'owner/laporan/cetak-penjualan':
+                return null
+            case name === 'pesanan/cetak-invoice':
+                return null
             case name.startsWith('owner/'):
                 return OwnerLayout
             default:

@@ -13,7 +13,7 @@ export default function AdminKategoriForm() {
     function handleSubmit(e) {
         e.preventDefault();
         if (isEdit) {
-            put(`/admin/kategori/${kategori.id}`, { preserveScroll: true });
+            put(`/admin/kategori/${kategori.id_kategori}`, { preserveScroll: true });
         } else {
             post('/admin/kategori', { preserveScroll: true });
         }

@@ -16,6 +16,11 @@ class Kategori extends Model
         'deskripsi',
     ];
 
+    public function getRouteKeyName(): string
+    {
+        return 'id_kategori';
+    }
+
     public function produks(): HasMany
     {
         return $this->hasMany(Produk::class, 'kategori_id', 'id_kategori');

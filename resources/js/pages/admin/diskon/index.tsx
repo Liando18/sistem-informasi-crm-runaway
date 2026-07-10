@@ -1,15 +1,22 @@
-import { Head, Link, usePage, router } from '@inertiajs/react';
+import { Head, Link, usePage, router, useForm } from '@inertiajs/react';
 import { useState } from 'react';
-import { Search, Plus, Pencil, Trash2, AlertCircle, CheckCircle, XCircle } from 'lucide-react';
+import { Search, Plus, Pencil, Trash2, AlertCircle, CheckCircle, XCircle, Truck, X } from 'lucide-react';
 
 function rupiah(value) {
     return 'Rp ' + new Intl.NumberFormat('id-ID').format(Math.round(value));
 }
 
 export default function AdminDiskonIndex() {
-    const { diskon, filters } = usePage().props;
+    const { diskon, filters, ongkirSetting } = usePage().props;
     const [search, setSearch] = useState(filters?.search || '');
     const [deleteId, setDeleteId] = useState(null);
+    const [showOngkirModal, setShowOngkirModal] = useState(false);
+
+    const { data, setData, post, processing, errors, reset } = useForm({
+        jarak_gratis: ongkirSetting?.jarak_gratis ?? 0,
+        ongkir_per_km: ongkirSetting?.ongkir_per_km ?? 2500,
+        jarak_per_kenaikan: ongkirSetting?.jarak_per_kenaikan ?? 10,
+    });
 
     function handleSearch(e) {
         e.preventDefault();
@@ -25,6 +32,16 @@ export default function AdminDiskonIndex() {
         router.delete(`/admin/diskon/${deleteId}`, { preserveScroll: true, onSuccess: () => setDeleteId(null) });
     }
 
+    function openOngkirSetting() {
+        reset();
+        setShowOngkirModal(true);
+    }
+
+    function handleOngkirSave(e) {
+        e.preventDefault();
+        post('/admin/diskon/ongkir-setting', { preserveScroll: true, onSuccess: () => setShowOngkirModal(false) });
+    }
+
     const items = diskon?.data || diskon || [];
 
     return (
@@ -34,9 +51,14 @@ export default function AdminDiskonIndex() {
             <div className="p-6">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                     <h1 className="text-2xl font-bold text-gray-900">Diskon</h1>
-                    <Link href="/admin/diskon/create" className="inline-flex items-center gap-2 bg-emerald-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-emerald-600 transition-all shadow-sm">
-                        <Plus size={18} /> Tambah
-                    </Link>
+                    <div className="flex gap-2">
+                        <button onClick={openOngkirSetting} className="inline-flex items-center gap-2 bg-primary-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-primary-700 transition-all shadow-sm">
+                            <Truck size={18} /> Setting Ongkir
+                        </button>
+                        <Link href="/admin/diskon/create" className="inline-flex items-center gap-2 bg-emerald-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-emerald-600 transition-all shadow-sm">
+                            <Plus size={18} /> Tambah
+                        </Link>
+                    </div>
                 </div>
 
                 <form onSubmit={handleSearch} className="relative mb-6 max-w-md">
@@ -55,13 +77,13 @@ export default function AdminDiskonIndex() {
                         <table className="w-full text-sm">
                             <thead className="bg-gray-50 text-gray-600">
                                 <tr>
-                                    <th className="text-left px-5 py-3 font-medium w-12">No</th>
-                                    <th className="text-left px-5 py-3 font-medium">Nama</th>
-                                    <th className="text-left px-5 py-3 font-medium">Tipe</th>
-                                    <th className="text-right px-5 py-3 font-medium">Nilai</th>
-                                    <th className="text-left px-5 py-3 font-medium">Kode</th>
-                                    <th className="text-left px-5 py-3 font-medium">Periode</th>
-                                    <th className="text-right px-5 py-3 font-medium">Min Belanja</th>
+                                    <th className="text-center px-5 py-3 font-medium w-12">No</th>
+                                    <th className="text-center px-5 py-3 font-medium">Nama</th>
+                                    <th className="text-center px-5 py-3 font-medium">Jenis</th>
+                                    <th className="text-center px-5 py-3 font-medium">Tipe</th>
+                                    <th className="text-center px-5 py-3 font-medium">Nilai</th>
+                                    <th className="text-center px-5 py-3 font-medium">Sisa Hari</th>
+                                    <th className="text-center px-5 py-3 font-medium">Min Belanja</th>
                                     <th className="text-center px-5 py-3 font-medium">Status</th>
                                     <th className="text-center px-5 py-3 font-medium w-24">Aksi</th>
                                 </tr>
@@ -71,24 +93,39 @@ export default function AdminDiskonIndex() {
                                     const isActive = item.status === 'aktif';
                                     return (
                                         <tr key={item.id_diskon} className="hover:bg-gray-50">
-                                            <td className="px-5 py-3 text-gray-500">{i + 1}</td>
-                                            <td className="px-5 py-3 font-medium text-gray-900">{item.nama_diskon}</td>
-                                            <td className="px-5 py-3 text-gray-500">{item.tipe}</td>
-                                            <td className="px-5 py-3 text-right font-medium">
-                                                {item.tipe === 'persen' ? `${item.nilai}%` : rupiah(item.nilai)}
+                                            <td className="px-5 py-3 text-center text-gray-500">{i + 1}</td>
+                                            <td className="px-5 py-3 text-center font-medium text-gray-900">{item.nama_diskon}</td>
+                                            <td className="px-5 py-3 text-center">
+                                                <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${item.jenis_diskon === 'voucher_ongkir' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'}`}>
+                                                    {item.jenis_diskon === 'voucher_ongkir' ? 'Voucher Ongkir' : 'Diskon Produk'}
+                                                </span>
                                             </td>
-                                            <td className="px-5 py-3 text-gray-500 font-mono">{item.kode}</td>
-                                            <td className="px-5 py-3 text-gray-500 text-xs">
-                                                {item.tanggal_mulai && new Date(item.tanggal_mulai).toLocaleDateString('id-ID')} - {item.tanggal_berakhir && new Date(item.tanggal_berakhir).toLocaleDateString('id-ID')}
+                                            <td className="px-5 py-3 text-center text-gray-500">{item.tipe}</td>
+                                            <td className="px-5 py-3 text-center font-medium">
+                                                {item.jenis_diskon === 'voucher_ongkir' ? '-' : (item.tipe === 'persen' ? `${item.nilai}%` : rupiah(item.nilai))}
                                             </td>
-                                            <td className="px-5 py-3 text-right">{item.min_belanja ? rupiah(item.min_belanja) : '-'}</td>
+                                            <td className="px-5 py-3 text-center">
+                                                {(() => {
+                                                    const sisa = Math.ceil((new Date(item.tanggal_berakhir).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+                                                    return sisa > 0 ? (
+                                                        <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
+                                                            sisa <= 3 ? 'bg-red-100 text-red-800' : sisa <= 7 ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-800'
+                                                        }`}>
+                                                            {sisa} hari
+                                                        </span>
+                                                    ) : (
+                                                        <span className="inline-flex px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-500">Berakhir</span>
+                                                    )
+                                                })()}
+                                            </td>
+                                            <td className="px-5 py-3 text-center">{item.min_belanja ? rupiah(item.min_belanja) : '-'}</td>
                                             <td className="px-5 py-3 text-center">
                                                 <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>
                                                     {isActive ? <CheckCircle size={12} /> : <XCircle size={12} />}
                                                     {item.status?.charAt(0).toUpperCase() + item.status?.slice(1)}
                                                 </span>
                                             </td>
-                                            <td className="px-5 py-3">
+                                            <td className="px-5 py-3 text-center">
                                                 <div className="flex items-center justify-center gap-2">
                                                     <Link href={`/admin/diskon/${item.id_diskon}/edit`} className="bg-amber-400 text-white p-2 rounded-lg hover:bg-amber-500 transition-all" title="Edit">
                                                         <Pencil size={16} />
@@ -101,7 +138,7 @@ export default function AdminDiskonIndex() {
                                         </tr>
                                     );
                                 }) : (
-                                    <tr><td colSpan={9} className="px-5 py-12 text-center text-gray-400">Tidak ada data</td></tr>
+                                    <tr><td colSpan={10} className="px-5 py-12 text-center text-gray-400">Tidak ada data</td></tr>
                                 )}
                             </tbody>
                         </table>
@@ -134,6 +171,65 @@ export default function AdminDiskonIndex() {
                                     <button onClick={handleDelete} className="px-4 py-2 bg-red-500 text-white rounded-lg font-medium hover:bg-red-600 transition-all">Hapus</button>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                )}
+
+                {showOngkirModal && (
+                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                        <div className="bg-white rounded-xl p-6 max-w-md w-full shadow-xl">
+                            <div className="flex items-center justify-between mb-5">
+                                <div className="flex items-center gap-2">
+                                    <Truck size={20} className="text-primary-600" />
+                                    <h3 className="text-lg font-semibold text-gray-900">Setting Ongkir</h3>
+                                </div>
+                                <button onClick={() => setShowOngkirModal(false)} className="text-gray-400 hover:text-gray-600 transition-colors">
+                                    <X size={20} />
+                                </button>
+                            </div>
+                            <form onSubmit={handleOngkirSave} className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Jarak Gratis Ongkir (km)</label>
+                                    <input
+                                        type="number"
+                                        value={data.jarak_gratis}
+                                        onChange={(e) => setData('jarak_gratis', e.target.value)}
+                                        min="0"
+                                        className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+                                    />
+                                    {errors.jarak_gratis && <p className="text-red-500 text-xs mt-1">{errors.jarak_gratis}</p>}
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Tarif Ongkir per {data.jarak_per_kenaikan || '...'} km (Rp)</label>
+                                    <input
+                                        type="number"
+                                        value={data.ongkir_per_km}
+                                        onChange={(e) => setData('ongkir_per_km', e.target.value)}
+                                        min="0"
+                                        className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+                                    />
+                                    {errors.ongkir_per_km && <p className="text-red-500 text-xs mt-1">{errors.ongkir_per_km}</p>}
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Jarak per Kenaikan (km)</label>
+                                    <input
+                                        type="number"
+                                        value={data.jarak_per_kenaikan}
+                                        onChange={(e) => setData('jarak_per_kenaikan', e.target.value)}
+                                        min="1"
+                                        className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+                                    />
+                                    {errors.jarak_per_kenaikan && <p className="text-red-500 text-xs mt-1">{errors.jarak_per_kenaikan}</p>}
+                                </div>
+                                <div className="flex gap-3 pt-2">
+                                    <button type="submit" disabled={processing} className="flex-1 bg-primary-600 text-white px-4 py-2.5 rounded-lg font-medium hover:bg-primary-700 transition-all disabled:opacity-50">
+                                        Simpan
+                                    </button>
+                                    <button type="button" onClick={() => setShowOngkirModal(false)} className="flex-1 bg-gray-100 text-gray-700 px-4 py-2.5 rounded-lg font-medium hover:bg-gray-200 transition-all">
+                                        Batal
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 )}

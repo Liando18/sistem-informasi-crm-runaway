@@ -35,7 +35,7 @@ class PembayaranController extends Controller
             'tgl_bayar' => now(),
         ]);
 
-        $pembayaran->pesanan->update(['status' => 'diproses']);
+        $pembayaran->pesanan->update(['status' => 'dibayar']);
 
         return redirect()->back()->with('success', 'Pembayaran berhasil dikonfirmasi');
     }

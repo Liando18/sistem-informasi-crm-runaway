@@ -14,7 +14,7 @@ export default function AdminPesananIndex() {
     const tabs = [
         { key: 'semua', label: 'Semua' },
         { key: 'pending', label: 'Pending' },
-        { key: 'diproses', label: 'Diproses' },
+        { key: 'dibayar', label: 'Dibayar' },
         { key: 'dikirim', label: 'Dikirim' },
         { key: 'selesai', label: 'Selesai' },
         { key: 'dibatalkan', label: 'Dibatalkan' },
@@ -22,7 +22,7 @@ export default function AdminPesananIndex() {
 
     const statusColors = {
         pending: 'bg-yellow-100 text-yellow-800',
-        diproses: 'bg-primary-100 text-primary-800',
+        dibayar: 'bg-primary-100 text-primary-800',
         dikirim: 'bg-primary-100 text-primary-800',
         selesai: 'bg-green-100 text-green-800',
         dibatalkan: 'bg-red-100 text-red-800',
@@ -75,10 +75,10 @@ export default function AdminPesananIndex() {
                         <table className="w-full text-sm">
                             <thead className="bg-gray-50 text-gray-600">
                                 <tr>
-                                    <th className="text-left px-5 py-3 font-medium w-12">No</th>
-                                    <th className="text-left px-5 py-3 font-medium">Pelanggan</th>
-                                    <th className="text-left px-5 py-3 font-medium">Tanggal</th>
-                                    <th className="text-right px-5 py-3 font-medium">Total</th>
+                                    <th className="text-center px-5 py-3 font-medium w-12">No</th>
+                                    <th className="text-center px-5 py-3 font-medium">Pelanggan</th>
+                                    <th className="text-center px-5 py-3 font-medium">Tanggal</th>
+                                    <th className="text-center px-5 py-3 font-medium">Total</th>
                                     <th className="text-center px-5 py-3 font-medium">Status</th>
                                     <th className="text-center px-5 py-3 font-medium w-20">Aksi</th>
                                 </tr>
@@ -86,10 +86,10 @@ export default function AdminPesananIndex() {
                             <tbody className="divide-y divide-gray-100">
                                 {items.length > 0 ? items.map((item, i) => (
                                     <tr key={item.id_pesanan} className="hover:bg-gray-50">
-                                        <td className="px-5 py-3 text-gray-500">{i + 1}</td>
-                                        <td className="px-5 py-3 font-medium text-gray-900">{item.akun?.nama || item.pelanggan?.nama || item.user?.name || '-'}</td>
-                                        <td className="px-5 py-3 text-gray-500">{new Date(item.tgl_pesanan || item.created_at).toLocaleDateString('id-ID')}</td>
-                                        <td className="px-5 py-3 text-right font-medium">{rupiah(item.total)}</td>
+                                        <td className="px-5 py-3 text-center text-gray-500">{i + 1}</td>
+                                        <td className="px-5 py-3 text-center font-medium text-gray-900">{item.akun?.nama || item.pelanggan?.nama || item.user?.name || '-'}</td>
+                                        <td className="px-5 py-3 text-center text-gray-500">{new Date(item.tgl_pesanan || item.created_at).toLocaleDateString('id-ID')}</td>
+                                        <td className="px-5 py-3 text-center font-medium">{rupiah(item.grand_total)}</td>
                                         <td className="px-5 py-3 text-center">
                                             <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[item.status] || ''}`}>
                                                 {item.status?.charAt(0).toUpperCase() + item.status?.slice(1)}

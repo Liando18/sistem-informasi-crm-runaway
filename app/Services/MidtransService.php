@@ -21,7 +21,7 @@ class MidtransService
     {
         $params = [
             'transaction_details' => [
-                'order_id' => 'ORDER-'.$pesanan->id_pesanan,
+                'order_id' => 'ORDER-'.$pesanan->id_pesanan.'-'.time(),
                 'gross_amount' => (int) $pesanan->grand_total,
             ],
             'customer_details' => [
@@ -29,6 +29,10 @@ class MidtransService
                 'email' => $pesanan->akun->email,
                 'phone' => $pesanan->akun->no_telp,
             ],
+        ];
+
+        $params['callbacks'] = [
+            'finish' => route('pembayaran.sukses', $pesanan),
         ];
 
         return Snap::createTransaction($params);

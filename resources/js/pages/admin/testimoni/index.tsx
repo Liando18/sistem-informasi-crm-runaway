@@ -43,11 +43,11 @@ export default function AdminTestimoniIndex() {
                         <table className="w-full text-sm">
                             <thead className="bg-gray-50 text-gray-600">
                                 <tr>
-                                    <th className="text-left px-5 py-3 font-medium w-12">No</th>
-                                    <th className="text-left px-5 py-3 font-medium">Pelanggan</th>
-                                    <th className="text-left px-5 py-3 font-medium">Produk</th>
+                                    <th className="text-center px-5 py-3 font-medium w-12">No</th>
+                                    <th className="text-center px-5 py-3 font-medium">Pelanggan</th>
+                                    <th className="text-center px-5 py-3 font-medium">Produk</th>
                                     <th className="text-center px-5 py-3 font-medium">Rating</th>
-                                    <th className="text-left px-5 py-3 font-medium">Komentar</th>
+                                    <th className="text-center px-5 py-3 font-medium">Komentar</th>
                                     <th className="text-center px-5 py-3 font-medium">Status</th>
                                     <th className="text-center px-5 py-3 font-medium w-36">Aksi</th>
                                 </tr>
@@ -55,23 +55,23 @@ export default function AdminTestimoniIndex() {
                             <tbody className="divide-y divide-gray-100">
                                 {items.length > 0 ? items.map((t, i) => (
                                     <tr key={t.id_testimoni} className="hover:bg-gray-50">
-                                        <td className="px-5 py-3 text-gray-500">{i + 1}</td>
-                                        <td className="px-5 py-3 font-medium text-gray-900">{t.akun?.nama || t.pelanggan?.nama || t.user?.name || '-'}</td>
-                                        <td className="px-5 py-3 text-gray-500">{t.produk?.nama_produk || t.produk?.nama || '-'}</td>
-                                        <td className="px-5 py-3">
+                                        <td className="px-5 py-3 text-center text-gray-500">{i + 1}</td>
+                                        <td className="px-5 py-3 text-center font-medium text-gray-900">{t.akun?.nama || t.pelanggan?.nama || t.user?.name || '-'}</td>
+                                        <td className="px-5 py-3 text-center text-gray-500">{t.produk?.nama_produk || t.produk?.nama || '-'}</td>
+                                        <td className="px-5 py-3 text-center">
                                             <div className="flex items-center justify-center gap-0.5">
                                                 {[1, 2, 3, 4, 5].map((s) => (
                                                     <Star key={s} size={14} className={s <= t.rating ? 'fill-amber-400 text-amber-400' : 'text-gray-300'} />
                                                 ))}
                                             </div>
                                         </td>
-                                        <td className="px-5 py-3 text-gray-600 max-w-xs truncate">{t.komentar}</td>
+                                        <td className="px-5 py-3 text-center text-gray-600 max-w-xs truncate">{t.komentar}</td>
                                         <td className="px-5 py-3 text-center">
                                             <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusBadge[t.status] || ''}`}>
                                                 {t.status?.charAt(0).toUpperCase() + t.status?.slice(1)}
                                             </span>
                                         </td>
-                                        <td className="px-5 py-3">
+                                        <td className="px-5 py-3 text-center">
                                             <div className="flex items-center justify-center gap-2">
                                                 {t.status !== 'disetujui' && (
                                                     <button onClick={() => setujui(t.id_testimoni)} className="bg-emerald-500 text-white p-2 rounded-lg hover:bg-emerald-600 transition-all" title="Setujui">

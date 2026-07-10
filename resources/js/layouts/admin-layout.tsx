@@ -1,6 +1,6 @@
 import { Head, Link, router, usePage } from '@inertiajs/react'
 import { useState } from 'react'
-import { LayoutDashboard, Package, FolderOpen, Ticket, ShoppingCart, CreditCard, MessageSquare, Star, LogOut, Menu, X, ChevronDown, Users, ShoppingBag, DollarSign } from 'lucide-react'
+import { LayoutDashboard, Package, FolderOpen, Ticket, ShoppingCart, MessageSquare, Star, LogOut, Menu, X, ChevronDown, Users, ShoppingBag, User } from 'lucide-react'
 
 interface AdminLayoutProps {
     children: React.ReactNode
@@ -21,10 +21,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             { label: 'Kategori', href: '/admin/kategori', icon: FolderOpen },
             { label: 'Diskon', href: '/admin/diskon', icon: Ticket },
         ],
-        Transaksi: [
-            { label: 'Pesanan', href: '/admin/pesanan', icon: ShoppingCart },
-            { label: 'Pembayaran', href: '/admin/pembayaran', icon: CreditCard },
-        ],
         Pelanggan: [
             { label: 'Kelola Pelanggan', href: '/admin/pelanggan', icon: Users },
             { label: 'Testimoni', href: '/admin/testimoni', icon: Star },
@@ -34,6 +30,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
     const allItems = [
         { label: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
+        { label: 'Pesanan', href: '/admin/pesanan', icon: ShoppingCart },
         ...Object.values(dropdowns).flat(),
     ]
 
@@ -70,6 +67,17 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                                 <LayoutDashboard size={16} />
                                 Dashboard
                             </Link>
+                            <Link
+                                href="/admin/pesanan"
+                                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                    isActive('/admin/pesanan')
+                                        ? 'bg-primary-50 text-primary-700'
+                                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                                }`}
+                            >
+                                <ShoppingCart size={16} />
+                                Pesanan
+                            </Link>
                             {Object.entries(dropdowns).map(([groupName, items]) => (
                                 <div key={groupName} className="relative">
                                     <button
@@ -81,7 +89,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                                         }`}
                                     >
                                         {groupName === 'Toko' && <ShoppingBag size={16} />}
-                                        {groupName === 'Transaksi' && <DollarSign size={16} />}
                                         {groupName === 'Pelanggan' && <Users size={16} />}
                                         {groupName}
                                         <ChevronDown size={14} className={`transition-transform ${openDropdown === groupName ? 'rotate-180' : ''}`} />
@@ -114,8 +121,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                                 </div>
                             ))}
                         </div>
-                        <div className="flex items-center gap-3">
-                            <span className="text-sm text-gray-500 hidden sm:block">{user.nama}</span>
+                        <div className="flex items-center gap-2">
+                            <Link href="/settings/profile" className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-50 px-3 py-2 rounded-lg font-medium transition-colors">
+                                <User size={16} />
+                                <span className="hidden sm:block">{user.nama}</span>
+                            </Link>
                             <button
                                 onClick={handleLogout}
                                 className="flex items-center gap-1.5 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 px-3 py-2 rounded-lg font-medium transition-colors"
@@ -148,6 +158,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                                 )
                             })}
                             <hr className="my-2" />
+                            <Link href="/settings/profile" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 w-full">
+                                <User size={18} /> Profil
+                            </Link>
                             <button onClick={handleLogout} className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 w-full">
                                 <LogOut size={18} /> Logout
                             </button>

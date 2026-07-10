@@ -37,7 +37,7 @@ class ProdukController extends Controller
     public function create()
     {
         $kategoris = Kategori::all();
-        $diskons = Diskon::where('status', 'aktif')->get();
+        $diskons = Diskon::where('status', 'aktif')->where('jenis_diskon', 'produk')->get();
 
         return Inertia::render('admin/produk/form', [
             'kategoris' => $kategoris,
@@ -119,7 +119,7 @@ class ProdukController extends Controller
     public function edit(Produk $produk)
     {
         $kategoris = Kategori::all();
-        $diskons = Diskon::where('status', 'aktif')->get();
+        $diskons = Diskon::where('status', 'aktif')->where('jenis_diskon', 'produk')->get();
 
         $produk->load(['gambars', 'variasis']);
 

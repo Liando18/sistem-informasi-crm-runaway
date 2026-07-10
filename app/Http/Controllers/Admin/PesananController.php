@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Pesanan;
+use App\Services\ChatNotificationService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -55,7 +56,20 @@ class PesananController extends Controller
             }
         }
 
+        $oldStatus = $pesanan->status;
         $pesanan->update(['status' => $request->status]);
+
+        if ($oldStatus !== $request->status) {
+            $pesanan->load('akun');
+            $service = app(ChatNotificationService::class);
+
+            match ($request->status) {
+                'dipacking' => $service->prosesPacking($pesanan->akun_id, $pesanan->akun->nama, $pesanan->id_pesanan),
+                'dikirim' => $service->pesananDikirim($pesanan->akun_id, $pesanan->akun->nama, $pesanan->id_pesanan),
+                'selesai' => $service->pesananSelesai($pesanan->akun_id, $pesanan->akun->nama, $pesanan->id_pesanan),
+                default => null,
+            };
+        }
 
         return redirect()->back()->with('success', 'Status pesanan berhasil diperbarui');
     }

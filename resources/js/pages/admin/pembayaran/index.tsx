@@ -64,11 +64,11 @@ export default function AdminPembayaranIndex() {
                         <table className="w-full text-sm">
                             <thead className="bg-gray-50 text-gray-600">
                                 <tr>
-                                    <th className="text-left px-5 py-3 font-medium w-12">No</th>
-                                    <th className="text-left px-5 py-3 font-medium">Order ID</th>
-                                    <th className="text-left px-5 py-3 font-medium">Pelanggan</th>
-                                    <th className="text-right px-5 py-3 font-medium">Jumlah</th>
-                                    <th className="text-left px-5 py-3 font-medium">Metode</th>
+                                    <th className="text-center px-5 py-3 font-medium w-12">No</th>
+                                    <th className="text-center px-5 py-3 font-medium">Order ID</th>
+                                    <th className="text-center px-5 py-3 font-medium">Pelanggan</th>
+                                    <th className="text-center px-5 py-3 font-medium">Jumlah</th>
+                                    <th className="text-center px-5 py-3 font-medium">Metode</th>
                                     <th className="text-center px-5 py-3 font-medium">Status</th>
                                     <th className="text-center px-5 py-3 font-medium w-28">Aksi</th>
                                 </tr>
@@ -76,17 +76,17 @@ export default function AdminPembayaranIndex() {
                             <tbody className="divide-y divide-gray-100">
                                 {items.length > 0 ? items.map((item, i) => (
                                     <tr key={item.id_pembayaran} className="hover:bg-gray-50">
-                                        <td className="px-5 py-3 text-gray-500">{i + 1}</td>
-                                        <td className="px-5 py-3 font-medium text-gray-900">#{item.pesanan_id}</td>
-                                        <td className="px-5 py-3 text-gray-900">{item.pesanan?.akun?.nama || item.pesanan?.user?.name || item.pesanan?.pelanggan?.nama || '-'}</td>
-                                        <td className="px-5 py-3 text-right font-medium">{rupiah(item.jumlah)}</td>
-                                        <td className="px-5 py-3 text-gray-500">{item.metode || '-'}</td>
+                                        <td className="px-5 py-3 text-center text-gray-500">{i + 1}</td>
+                                        <td className="px-5 py-3 text-center font-medium text-gray-900">#{item.pesanan_id}</td>
+                                        <td className="px-5 py-3 text-center text-gray-900">{item.pesanan?.akun?.nama || item.pesanan?.user?.name || item.pesanan?.pelanggan?.nama || '-'}</td>
+                                        <td className="px-5 py-3 text-center font-medium">{rupiah(item.jumlah)}</td>
+                                        <td className="px-5 py-3 text-center text-gray-500">{item.metode || '-'}</td>
                                         <td className="px-5 py-3 text-center">
                                             <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[item.status] || ''}`}>
                                                 {item.status?.charAt(0).toUpperCase() + item.status?.slice(1)}
                                             </span>
                                         </td>
-                                        <td className="px-5 py-3">
+                                        <td className="px-5 py-3 text-center">
                                             <div className="flex items-center justify-center gap-2">
                                                 <Link href={`/admin/pesanan/${item.pesanan_id}`} className="bg-primary-500 text-white p-2 rounded-lg hover:bg-primary-600 transition-all" title="Lihat">
                                                     <Eye size={16} />

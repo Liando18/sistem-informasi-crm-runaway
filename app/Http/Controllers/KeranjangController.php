@@ -16,7 +16,7 @@ class KeranjangController extends Controller
             ->get();
 
         return Inertia::render('keranjang/index', [
-            'items' => $items,
+            'keranjang' => $items,
         ]);
     }
 
@@ -24,7 +24,7 @@ class KeranjangController extends Controller
     {
         $request->validate([
             'jumlah' => 'required|integer|min:1',
-            'produk_variasi_id' => 'required|integer|exists:produk_variasi,id_produk_variasi',
+            'produk_variasi_id' => 'nullable|integer|exists:produk_variasi,id_produk_variasi',
         ]);
 
         $existing = Keranjang::where('akun_id', auth()->id())

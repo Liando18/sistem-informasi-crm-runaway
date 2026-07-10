@@ -17,15 +17,16 @@ interface GambarUtama {
 }
 
 interface Produk {
-    id: number;
-    nama: string;
+    id_produk: number;
+    nama_produk: string;
     harga: number;
+    gambar_utama?: GambarUtama;
     gambarUtama?: GambarUtama;
     variasis?: Variasi[];
 }
 
 interface KeranjangItem {
-    id: number;
+    id_keranjang: number;
     produk_id: number;
     produk_variasi_id: number | null;
     jumlah: number;
@@ -47,15 +48,16 @@ export default function KeranjangIndex() {
 
     function updateQty(item: KeranjangItem, qty: number): void {
         if (qty < 1) return;
-        router.patch(`/keranjang/${item.id}`, { jumlah: qty }, { preserveScroll: true, preserveState: true });
+        router.patch(`/keranjang/${item.id_keranjang}`, { jumlah: qty }, { preserveScroll: true, preserveState: true });
     }
 
     function hapusItem(item: KeranjangItem): void {
-        router.delete(`/keranjang/${item.id}`, { preserveScroll: true });
+        router.delete(`/keranjang/${item.id_keranjang}`, { preserveScroll: true });
     }
 
     const items: KeranjangItem[] = (keranjang as KeranjangData)?.data || keranjang as KeranjangItem[] || [];
     const totalHarga: number = total || items.reduce((sum, item) => sum + (item.produk?.harga || 0) * item.jumlah, 0);
+    const totalItem: number = items.reduce((sum, item) => sum + item.jumlah, 0);
 
     return (
         <>
@@ -80,13 +82,13 @@ export default function KeranjangIndex() {
                                 );
                                 return (
                                     <div key={item.id} className="bg-white rounded-2xl border border-gray-100 p-4 md:p-5 shadow-sm hover:shadow-md transition-all flex gap-4">
-                                        <Link href={`/produk/${produk.id}`} className="w-20 h-20 md:w-24 md:h-24 bg-gray-100 rounded-xl overflow-hidden flex-shrink-0">
-                                            {produk.gambarUtama?.gambar && <img src={`/storage/${produk.gambarUtama.gambar}`} alt={produk.nama} className="w-full h-full object-cover" />}
+                                        <Link href={`/produk/${produk.id_produk}`} className="w-20 h-20 md:w-24 md:h-24 bg-gray-100 rounded-xl overflow-hidden flex-shrink-0">
+                                            {(produk.gambar_utama?.gambar || produk.gambarUtama?.gambar) && <img src={`/storage/${(produk.gambar_utama?.gambar || produk.gambarUtama?.gambar)}`} alt={produk.nama_produk} className="w-full h-full object-cover" />}
                                         </Link>
                                         <div className="flex-1 min-w-0">
                                             <div className="flex justify-between items-start">
                                                 <div>
-                                                    <Link href={`/produk/${produk.id}`} className="font-semibold text-gray-900 hover:text-primary-600 transition-colors">{produk.nama}</Link>
+                                                    <Link href={`/produk/${produk.id_produk}`} className="font-semibold text-gray-900 hover:text-primary-600 transition-colors">{produk.nama_produk}</Link>
                                                     {item.produk_variasi_id && selectedVariasi && (
                                                         <p className="text-sm text-gray-400 mt-0.5">
                                                             {selectedVariasi.ukuran} / {selectedVariasi.warna}
@@ -117,7 +119,7 @@ export default function KeranjangIndex() {
                             <div className="space-y-3 text-sm">
                                 <div className="flex justify-between text-gray-600">
                                     <span>Total Barang</span>
-                                    <span className="font-semibold text-gray-900">{items.length} item</span>
+                                    <span className="font-semibold text-gray-900">{totalItem} item</span>
                                 </div>
                                 <div className="flex justify-between text-gray-600">
                                     <span>Subtotal</span>

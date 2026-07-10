@@ -1,21 +1,34 @@
 import { Head, Link, router, usePage } from '@inertiajs/react'
 import { useState } from 'react'
-import { LayoutDashboard, Package, TrendingUp, LogOut, Menu, X, Printer } from 'lucide-react'
+import { LayoutDashboard, Package, TrendingUp, LogOut, Menu, X, Users, Star, User, ChevronDown } from 'lucide-react'
 
 interface OwnerLayoutProps {
     children: React.ReactNode
 }
 
 export default function OwnerLayout({ children }: OwnerLayoutProps) {
-    const { auth, url } = usePage().props
+    const page = usePage()
+    const { auth } = page.props
+    const url = page.url
     const [mobileOpen, setMobileOpen] = useState(false)
+    const [openDropdown, setOpenDropdown] = useState<string | null>(null)
 
     const user = auth?.user || { nama: '', email: '' }
 
-    const navItems = [
+    const dropdowns: Record<string, { label: string; href: string; icon: any }[]> = {
+        Pelanggan: [
+            { label: 'Data Pelanggan', href: '/owner/pelanggan', icon: Users },
+            { label: 'Testimoni', href: '/owner/testimoni', icon: Star },
+        ],
+        Laporan: [
+            { label: 'Laporan Stok', href: '/owner/laporan/stok', icon: Package },
+            { label: 'Laporan Penjualan', href: '/owner/laporan/penjualan', icon: TrendingUp },
+        ],
+    }
+
+    const allItems = [
         { label: 'Dashboard', href: '/owner/dashboard', icon: LayoutDashboard },
-        { label: 'Laporan Stok', href: '/owner/laporan/stok', icon: Package },
-        { label: 'Laporan Penjualan', href: '/owner/laporan/penjualan', icon: TrendingUp },
+        ...Object.values(dropdowns).flat(),
     ]
 
     function handleLogout() {
@@ -40,26 +53,65 @@ export default function OwnerLayout({ children }: OwnerLayoutProps) {
                             </Link>
                         </div>
                         <div className="hidden lg:flex items-center gap-1">
-                            {navItems.map((item) => {
-                                const Icon = item.icon
-                                return (
-                                    <Link
-                                        key={item.href}
-                                        href={item.href}
+                            <Link
+                                href="/owner/dashboard"
+                                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                    isActive('/owner/dashboard')
+                                        ? 'bg-purple-50 text-purple-700'
+                                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                                }`}
+                            >
+                                <LayoutDashboard size={16} />
+                                Dashboard
+                            </Link>
+                            {Object.entries(dropdowns).map(([groupName, items]) => (
+                                <div key={groupName} className="relative">
+                                    <button
+                                        onClick={() => setOpenDropdown(openDropdown === groupName ? null : groupName)}
                                         className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                                            isActive(item.href)
+                                            items.some((i) => isActive(i.href))
                                                 ? 'bg-purple-50 text-purple-700'
                                                 : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                                         }`}
                                     >
-                                        <Icon size={16} />
-                                        {item.label}
-                                    </Link>
-                                )
-                            })}
+                                        {groupName === 'Pelanggan' && <Users size={16} />}
+                                        {groupName === 'Laporan' && <Package size={16} />}
+                                        {groupName}
+                                        <ChevronDown size={14} className={`transition-transform ${openDropdown === groupName ? 'rotate-180' : ''}`} />
+                                    </button>
+                                    {openDropdown === groupName && (
+                                        <>
+                                            <div className="fixed inset-0 z-10" onClick={() => setOpenDropdown(null)} />
+                                            <div className="absolute top-full left-0 mt-1 w-48 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-20">
+                                                {items.map((item) => {
+                                                    const Icon = item.icon
+                                                    return (
+                                                        <Link
+                                                            key={item.href}
+                                                            href={item.href}
+                                                            onClick={() => setOpenDropdown(null)}
+                                                            className={`flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
+                                                                isActive(item.href)
+                                                                    ? 'text-purple-600 bg-purple-50'
+                                                                    : 'text-gray-700 hover:bg-gray-50'
+                                                            }`}
+                                                        >
+                                                            <Icon size={16} />
+                                                            {item.label}
+                                                        </Link>
+                                                    )
+                                                })}
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+                            ))}
                         </div>
-                        <div className="flex items-center gap-3">
-                            <span className="text-sm text-gray-500 hidden sm:block">{user.nama}</span>
+                        <div className="flex items-center gap-2">
+                            <Link href="/settings/profile" className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-50 px-3 py-2 rounded-lg font-medium transition-colors">
+                                <User size={16} />
+                                <span className="hidden sm:block">{user.nama}</span>
+                            </Link>
                             <button
                                 onClick={handleLogout}
                                 className="flex items-center gap-1.5 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 px-3 py-2 rounded-lg font-medium transition-colors"
@@ -73,7 +125,7 @@ export default function OwnerLayout({ children }: OwnerLayoutProps) {
                 {mobileOpen && (
                     <div className="lg:hidden border-t border-gray-100 bg-white">
                         <div className="px-4 py-3 space-y-1">
-                            {navItems.map((item) => {
+                            {allItems.map((item) => {
                                 const Icon = item.icon
                                 return (
                                     <Link
@@ -92,6 +144,9 @@ export default function OwnerLayout({ children }: OwnerLayoutProps) {
                                 )
                             })}
                             <hr className="my-2" />
+                            <Link href="/settings/profile" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 w-full">
+                                <User size={18} /> Profil
+                            </Link>
                             <button onClick={handleLogout} className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 w-full">
                                 <LogOut size={18} /> Logout
                             </button>

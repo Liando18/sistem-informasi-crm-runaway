@@ -1,6 +1,7 @@
 import { Head, Link, usePage, router, useForm } from '@inertiajs/react';
 import { useState, useMemo } from 'react';
-import { Star, Minus, Plus, ShoppingCart, Package, CheckCircle, MessageCircle, Sparkles, ArrowLeft, AlertCircle, Send, ShieldCheck, Truck } from 'lucide-react';
+import { Star, Minus, Plus, ShoppingCart, Package, CheckCircle, MessageCircle, Sparkles, ArrowLeft, AlertCircle, Send, ShieldCheck, Truck, Ban } from 'lucide-react';
+import { toast } from 'sonner';
 
 function rupiah(value: number | string): string {
     const num = typeof value === 'string' ? parseFloat(value) : value;
@@ -129,11 +130,14 @@ export default function ProdukShow() {
         return produk.variasis.find(v => v.ukuran === selectedUkuran && v.warna === selectedWarna) || null;
     }, [produk.variasis, selectedWarna, selectedUkuran]);
 
+    const variasiLengkap = hasVariasi ? (selectedWarna !== null && selectedUkuran !== null) : true;
+
     const stokTersedia = hasVariasi
         ? (selectedVariasi?.stok ?? 0)
         : (produk.stok ?? 0);
 
-    const qtyError = qty > stokTersedia;
+    const qtyError = qty > stokTersedia && (!hasVariasi || variasiLengkap);
+    const bisaTambah = stokTersedia > 0 && variasiLengkap && !qtyError;
 
     function handleWarnaClick(warna: string) {
         if (selectedWarna === warna) {
@@ -158,17 +162,15 @@ export default function ProdukShow() {
         }
         setQty(1);
     }
-
-    const variasiLengkap = hasVariasi ? (selectedWarna !== null && selectedUkuran !== null) : true;
-    const bisaTambah = stokTersedia > 0 && variasiLengkap && !qtyError;
+    const isPelanggan = auth.user?.role === 'pelanggan';
 
     function handleTambahKeKeranjang() {
         if (!bisaTambah && hasVariasi) return;
         setAddedToCart(true);
         router.post(
             `/keranjang/tambah/${produk.id_produk}`,
-            { produk_variasi_id: selectedVariasi?.id_produk_variasi, jumlah: qty },
-            { preserveScroll: true, onFinish: () => setTimeout(() => setAddedToCart(false), 2000) }
+            { produk_variasi_id: selectedVariasi?.id_produk_variasi ?? null, jumlah: qty },
+            { preserveScroll: true, onSuccess: () => { toast.success('Produk berhasil ditambahkan ke keranjang'); }, onFinish: () => setTimeout(() => setAddedToCart(false), 2000) }
         );
     }
 
@@ -177,8 +179,8 @@ export default function ProdukShow() {
         setBuyingNow(true);
         router.post(
             `/keranjang/tambah/${produk.id_produk}`,
-            { produk_variasi_id: selectedVariasi?.id_produk_variasi, jumlah: qty },
-            { preserveScroll: true, onFinish: () => { setBuyingNow(false); router.visit('/checkout'); } }
+            { produk_variasi_id: selectedVariasi?.id_produk_variasi ?? null, jumlah: qty },
+            { preserveScroll: true, onSuccess: () => router.visit('/checkout'), onFinish: () => setBuyingNow(false) }
         );
     }
 
@@ -365,17 +367,26 @@ export default function ProdukShow() {
 
                                 <div className="border-t border-gray-100 pt-5 space-y-4">
                                     {!variasiLengkap && hasVariasi && (
-                                        <div className="flex items-center gap-2 text-xs text-amber-700 bg-amber-50 border border-amber-100 px-3.5 py-2.5 rounded-xl">
-                                            <AlertCircle size={14} className="shrink-0" />
-                                            Silakan tentukan warna dan ukuran terlebih dahulu
+                                        <div className="flex items-center gap-2.5 text-sm text-amber-700 bg-amber-50 border border-amber-200 px-4 py-3 rounded-xl">
+                                            <AlertCircle size={16} className="shrink-0" />
+                                            <span>Pilih <strong>warna</strong> dan <strong>ukuran</strong> untuk melihat ketersediaan stok</span>
                                         </div>
                                     )}
 
-                                    {stokTersedia === 0 && variasiLengkap && (
-                                        <div className="flex items-center gap-2 text-xs text-red-700 bg-red-50 border border-red-100 px-3.5 py-2.5 rounded-xl">
-                                            <Package size={14} className="shrink-0" />
-                                            Maaf, produk ini sedang habis stok
-                                        </div>
+                                    {variasiLengkap && (
+                                        <>
+                                            {stokTersedia > 0 ? (
+                                                <div className="flex items-center gap-2 text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 px-4 py-2.5 rounded-xl">
+                                                    <CheckCircle size={16} className="shrink-0" />
+                                                    Stok tersedia: <strong>{stokTersedia}</strong>
+                                                </div>
+                                            ) : (
+                                                <div className="flex items-center gap-2.5 text-sm text-red-700 bg-red-50 border border-red-200 px-4 py-2.5 rounded-xl">
+                                                    <Package size={16} className="shrink-0" />
+                                                    Maaf, stok untuk pilihan ini sedang habis
+                                                </div>
+                                            )}
+                                        </>
                                     )}
 
                                     <div className="flex flex-wrap items-center gap-3">
@@ -410,26 +421,26 @@ export default function ProdukShow() {
                                     <div className="flex flex-col sm:flex-row gap-3 pt-2">
                                         <button
                                             onClick={handleTambahKeKeranjang}
-                                            disabled={!bisaTambah || processing}
+                                            disabled={!bisaTambah || processing || !isPelanggan}
                                             className={`flex-1 flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl border-2 font-bold text-sm transition-all ${
-                                                bisaTambah
+                                                bisaTambah && isPelanggan
                                                     ? 'border-primary-600 text-primary-600 bg-white hover:bg-primary-50/50 hover:border-primary-700 shadow-sm active:scale-98'
                                                     : 'border-gray-200 text-gray-400 bg-gray-50 cursor-not-allowed'
                                             }`}
                                         >
-                                            <ShoppingCart size={18} />
-                                            {addedToCart ? 'Berhasil Ditambah!' : 'Masukkan Keranjang'}
+                                            {!isPelanggan ? <Ban size={18} /> : <ShoppingCart size={18} />}
+                                            {!isPelanggan ? 'Khusus Pelanggan' : addedToCart ? 'Berhasil Ditambah!' : 'Masukkan Keranjang'}
                                         </button>
                                         <button
                                             onClick={handleBeliLangsung}
-                                            disabled={!bisaTambah || buyingNow}
+                                            disabled={!bisaTambah || buyingNow || !isPelanggan}
                                             className={`flex-1 flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl font-bold text-sm transition-all ${
-                                                bisaTambah
+                                                bisaTambah && isPelanggan
                                                     ? 'bg-primary-600 text-white hover:bg-primary-700 shadow-md shadow-primary-100 hover:shadow-lg active:scale-98'
                                                     : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                                             }`}
                                         >
-                                            {buyingNow ? 'Memproses...' : 'Beli Sekarang'}
+                                            {!isPelanggan ? 'Khusus Pelanggan' : buyingNow ? 'Memproses...' : 'Beli Sekarang'}
                                         </button>
                                     </div>
                                 </div>

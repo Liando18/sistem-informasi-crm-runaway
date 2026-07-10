@@ -85,7 +85,7 @@ export default function PesananIndex() {
                                                 <Package className="h-6 w-6 text-primary-600" />
                                             </div>
                                             <div>
-                                                <p className="font-bold text-gray-900">Pesanan #{order.id}</p>
+                                                <p className="font-bold text-gray-900">Pesanan #{order.id_pesanan}</p>
                                                 <p className="text-sm text-gray-400">{new Date(order.tgl_pesanan || order.created_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
                                             </div>
                                         </div>
@@ -97,9 +97,9 @@ export default function PesananIndex() {
                                     <div className="flex justify-between items-center pt-4 border-t border-gray-50">
                                         <div>
                                             <p className="text-xs text-gray-400 mb-0.5">Total Belanja</p>
-                                            <p className="text-xl font-bold text-primary-600">{rupiah(order.total)}</p>
+                                            <p className="text-xl font-bold text-primary-600">{rupiah(order.grand_total)}</p>
                                         </div>
-                                        <Link href={`/pesanan/${order.id}`} className="inline-flex items-center gap-1.5 bg-primary-600 text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-primary-700 transition-all shadow-md shadow-primary-200 text-sm">
+                                        <Link href={`/pesanan/${order.id_pesanan}`} className="inline-flex items-center gap-1.5 bg-primary-600 text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-primary-700 transition-all shadow-md shadow-primary-200 text-sm">
                                             <Eye size={16} /> Detail
                                         </Link>
                                     </div>

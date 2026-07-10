@@ -7,6 +7,7 @@ use App\Models\Diskon;
 use App\Models\Keranjang;
 use App\Models\Pesanan;
 use App\Models\ProdukVariasi;
+use App\Services\OngkirSetting;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -15,7 +16,7 @@ class PesananController extends Controller
     public function checkout()
     {
         $items = Keranjang::where('akun_id', auth()->id())
-            ->with(['produk.gambarUtama', 'produk.variasis'])
+            ->with(['produk.gambarUtama', 'produk.variasis', 'produk.diskon'])
             ->get();
 
         $total = $items->sum(function ($item) {
@@ -27,10 +28,24 @@ class PesananController extends Controller
             ->where('tanggal_berakhir', '>=', now())
             ->get();
 
+        $vouchers = Diskon::where('jenis_diskon', 'voucher_ongkir')
+            ->where('status', 'aktif')
+            ->where('tanggal_mulai', '<=', now())
+            ->where('tanggal_berakhir', '>=', now())
+            ->where(function ($q) {
+                $q->whereNull('pemilik_id')->orWhere('pemilik_id', auth()->id());
+            })
+            ->where(function ($q) {
+                $q->whereNull('maks_penggunaan')->orWhereRaw('digunakan < maks_penggunaan');
+            })
+            ->get();
+
         return Inertia::render('checkout/index', [
             'items' => $items,
             'total' => $total,
             'diskons' => $diskons,
+            'vouchers' => $vouchers,
+            'ongkirSetting' => OngkirSetting::get(),
         ]);
     }
 
@@ -46,11 +61,13 @@ class PesananController extends Controller
             'latitude' => 'nullable|numeric',
             'longitude' => 'nullable|numeric',
             'catatan' => 'nullable|string',
-            'kode_diskon' => 'nullable|string|exists:diskon,kode',
+            'ongkir' => 'nullable|numeric|min:0',
+            'jarak' => 'nullable|numeric|min:0',
+            'voucher_id' => 'nullable|integer|exists:diskon,id_diskon',
         ]);
 
         $items = Keranjang::where('akun_id', auth()->id())
-            ->with('produk')
+            ->with('produk.diskon')
             ->get();
 
         if ($items->isEmpty()) {
@@ -64,28 +81,44 @@ class PesananController extends Controller
         $potongan = 0;
         $diskonId = null;
 
-        if ($request->kode_diskon) {
-            $diskon = Diskon::where('kode', $request->kode_diskon)->first();
-
-            if (! $diskon || $diskon->status !== 'aktif' || $diskon->tanggal_berakhir < now()) {
-                return redirect()->back()->with('error', 'Kode diskon tidak valid atau sudah kadaluarsa');
+        foreach ($items as $item) {
+            $diskon = $item->produk->diskon;
+            if ($diskon && $diskon->status === 'aktif' && $diskon->tanggal_berakhir >= now()) {
+                $sub = $item->produk->harga * $item->jumlah;
+                if ($diskon->tipe === 'persen') {
+                    $potongan += $sub * $diskon->nilai / 100;
+                } else {
+                    $potongan += min($diskon->nilai, $sub);
+                }
             }
-
-            if ($diskon->min_belanja && $totalHarga < $diskon->min_belanja) {
-                return redirect()->back()->with('error', 'Minimal belanja Rp '.number_format($diskon->min_belanja, 0, ',', '.').' untuk menggunakan kode ini');
-            }
-
-            if ($diskon->tipe === 'persen') {
-                $potongan = $totalHarga * $diskon->nilai / 100;
-            } else {
-                $potongan = $diskon->nilai;
-            }
-
-            $potongan = min($potongan, $totalHarga);
-            $diskonId = $diskon->id_diskon;
         }
 
+        $potongan = min($potongan, $totalHarga);
+
         $grandTotal = $totalHarga - $potongan;
+        $ongkir = $request->ongkir ?? 0;
+
+        if ($request->voucher_id) {
+            $voucher = Diskon::where('id_diskon', $request->voucher_id)
+                ->where('jenis_diskon', 'voucher_ongkir')
+                ->where('status', 'aktif')
+                ->where('tanggal_mulai', '<=', now())
+                ->where('tanggal_berakhir', '>=', now())
+                ->where(function ($q) {
+                    $q->whereNull('pemilik_id')->orWhere('pemilik_id', auth()->id());
+                })
+                ->first();
+
+            if ($voucher) {
+                $ongkir = 0;
+                $voucher->increment('digunakan');
+                if ($voucher->maks_penggunaan && $voucher->digunakan >= $voucher->maks_penggunaan) {
+                    $voucher->update(['status' => 'nonaktif']);
+                }
+            }
+        }
+
+        $grandTotal = $totalHarga - $potongan + $ongkir;
 
         $pesanan = Pesanan::create([
             'akun_id' => auth()->id(),
@@ -95,6 +128,7 @@ class PesananController extends Controller
             'total_harga' => $totalHarga,
             'potongan' => $potongan,
             'grand_total' => $grandTotal,
+            'ongkir' => $ongkir,
             'catatan' => $request->catatan,
             'provinsi' => $request->provinsi,
             'kabupaten' => $request->kabupaten,
@@ -116,23 +150,29 @@ class PesananController extends Controller
                 'subtotal' => $item->produk->harga * $item->jumlah,
             ]);
 
-            ProdukVariasi::find($item->produk_variasi_id)->decrement('stok', $item->jumlah);
+            if ($item->produk_variasi_id) {
+                ProdukVariasi::find($item->produk_variasi_id)->decrement('stok', $item->jumlah);
+            }
         }
 
         Keranjang::where('akun_id', auth()->id())->delete();
 
-        return to_route('pembayaran.snap', $pesanan);
+        return to_route('pembayaran.pilih', $pesanan);
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $pesanans = Pesanan::where('akun_id', auth()->id())
             ->with(['detailPesanans.produk.gambarUtama', 'detailPesanans.variasi', 'pembayaran'])
+            ->when($request->status && $request->status !== 'semua', function ($q) use ($request) {
+                $q->where('status', $request->status);
+            })
             ->latest()
             ->paginate(10);
 
         return Inertia::render('pesanan/index', [
-            'pesanans' => $pesanans,
+            'pesanan' => $pesanans,
+            'filter' => $request->status ?? 'semua',
         ]);
     }
 
@@ -145,6 +185,19 @@ class PesananController extends Controller
         $pesanan->load(['detailPesanans.produk.gambarUtama', 'detailPesanans.variasi', 'pembayaran', 'diskon']);
 
         return Inertia::render('pesanan/show', [
+            'pesanan' => $pesanan,
+        ]);
+    }
+
+    public function invoice(Pesanan $pesanan)
+    {
+        if ($pesanan->akun_id !== auth()->id() && ! in_array(auth()->user()->role, ['admin', 'owner'])) {
+            abort(403);
+        }
+
+        $pesanan->load(['akun', 'detailPesanans.produk', 'detailPesanans.variasi', 'pembayaran', 'diskon']);
+
+        return Inertia::render('pesanan/cetak-invoice', [
             'pesanan' => $pesanan,
         ]);
     }

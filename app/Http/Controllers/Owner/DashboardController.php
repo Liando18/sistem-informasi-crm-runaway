@@ -31,9 +31,28 @@ class DashboardController extends Controller
 
         $stokMenipis = Produk::where('stok', '<=', 5)->get();
 
-        $penjualanTerbaru = Pesanan::with('akun')
+        $penjualanTerbaru = Pesanan::with('akun:id_akun,nama')
             ->latest()
             ->take(5)
+            ->get();
+
+        $revenueTrend = Pesanan::where('status', '!=', 'dibatalkan')
+            ->where('tgl_pesanan', '>=', now()->subDays(29)->startOfDay())
+            ->selectRaw('DATE(tgl_pesanan) as date, SUM(grand_total) as total')
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get();
+
+        $monthlyRevenue = Pesanan::where('status', '!=', 'dibatalkan')
+            ->whereYear('tgl_pesanan', now()->year)
+            ->selectRaw('MONTH(tgl_pesanan) as month, SUM(grand_total) as total')
+            ->groupBy('month')
+            ->orderBy('month')
+            ->get();
+
+        $ordersByStatus = Pesanan::selectRaw('status, COUNT(*) as count')
+            ->groupBy('status')
+            ->orderBy('count', 'desc')
             ->get();
 
         return Inertia::render('owner/dashboard', [
@@ -45,6 +64,9 @@ class DashboardController extends Controller
             'pendapatanTahunIni' => $pendapatanTahunIni,
             'stokMenipis' => $stokMenipis,
             'penjualanTerbaru' => $penjualanTerbaru,
+            'revenueTrend' => $revenueTrend,
+            'monthlyRevenue' => $monthlyRevenue,
+            'ordersByStatus' => $ordersByStatus,
         ]);
     }
 }

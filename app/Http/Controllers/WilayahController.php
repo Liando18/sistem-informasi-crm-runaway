@@ -10,27 +10,27 @@ class WilayahController extends Controller
     {
         $response = Http::get('https://wilayah.id/api/provinces.json');
 
-        return response()->json($response->json());
+        return response()->json($response->json('data'));
     }
 
     public function kabupaten($provinsi)
     {
         $response = Http::get("https://wilayah.id/api/regencies/{$provinsi}.json");
 
-        return response()->json($response->json());
+        return response()->json($response->json('data'));
     }
 
     public function kecamatan($kabupaten)
     {
         $response = Http::get("https://wilayah.id/api/districts/{$kabupaten}.json");
 
-        return response()->json($response->json());
+        return response()->json($response->json('data'));
     }
 
     public function kelurahan($kecamatan)
     {
         $response = Http::get("https://wilayah.id/api/villages/{$kecamatan}.json");
 
-        return response()->json($response->json());
+        return response()->json($response->json('data'));
     }
 }

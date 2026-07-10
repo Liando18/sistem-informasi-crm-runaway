@@ -27,10 +27,10 @@ export default function AdminPelangganIndex() {
                         <table className="w-full text-sm">
                             <thead className="bg-gray-50 text-gray-600">
                                 <tr>
-                                    <th className="text-left px-5 py-3 font-medium w-12">No</th>
-                                    <th className="text-left px-5 py-3 font-medium">Nama</th>
-                                    <th className="text-left px-5 py-3 font-medium">Email</th>
-                                    <th className="text-left px-5 py-3 font-medium">No. Telepon</th>
+                                    <th className="text-center px-5 py-3 font-medium w-12">No</th>
+                                    <th className="text-center px-5 py-3 font-medium">Nama</th>
+                                    <th className="text-center px-5 py-3 font-medium">Email</th>
+                                    <th className="text-center px-5 py-3 font-medium">No. Telepon</th>
                                     <th className="text-center px-5 py-3 font-medium">Total Pesanan</th>
                                     <th className="text-center px-5 py-3 font-medium">Bergabung</th>
                                     <th className="text-center px-5 py-3 font-medium w-24">Aksi</th>
@@ -39,15 +39,15 @@ export default function AdminPelangganIndex() {
                             <tbody className="divide-y divide-gray-100">
                                 {items.length > 0 ? items.map((p: any, i: number) => (
                                     <tr key={p.id_akun} className="hover:bg-gray-50">
-                                        <td className="px-5 py-3 text-gray-500">{pelanggan.from + i}</td>
-                                        <td className="px-5 py-3 font-medium text-gray-900">{p.nama}</td>
-                                        <td className="px-5 py-3 text-gray-500">
+                                        <td className="px-5 py-3 text-center text-gray-500">{pelanggan.from + i}</td>
+                                        <td className="px-5 py-3 text-center font-medium text-gray-900">{p.nama}</td>
+                                        <td className="px-5 py-3 text-center text-gray-500">
                                             <div className="flex items-center gap-1.5">
                                                 <Mail size={14} className="text-gray-400" />
                                                 {p.email}
                                             </div>
                                         </td>
-                                        <td className="px-5 py-3 text-gray-500">{p.no_telp || '-'}</td>
+                                        <td className="px-5 py-3 text-center text-gray-500">{p.no_telp || '-'}</td>
                                         <td className="px-5 py-3 text-center">
                                             <span className="inline-flex items-center gap-1 bg-primary-50 text-primary-700 px-2.5 py-1 rounded-full text-xs font-medium">
                                                 <ShoppingBag size={12} />

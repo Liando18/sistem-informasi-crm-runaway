@@ -1,16 +1,68 @@
-import { Head, Link, usePage } from '@inertiajs/react';
-import { MessageCircle, ChevronRight, User } from 'lucide-react';
+import { Head, Link, usePage, router } from '@inertiajs/react';
+import { useState } from 'react';
+import { MessageCircle, ChevronRight, Search } from 'lucide-react';
 
 export default function AdminChatIndex() {
-    const { conversations } = usePage().props;
+    const { conversations, pelanggan: initialPelanggan } = usePage().props;
     const items = conversations?.data || conversations || [];
+    const pelanggan = initialPelanggan?.data || initialPelanggan || [];
+    const [showNewChat, setShowNewChat] = useState(false);
+    const [newChatSearch, setNewChatSearch] = useState('');
+
+    const filteredPelanggan = pelanggan.filter((p: any) =>
+        !newChatSearch || (p.nama || '').toLowerCase().includes(newChatSearch.toLowerCase())
+    );
 
     return (
         <>
             <Head title="Chat - Admin" />
 
             <div className="p-6">
-                <h1 className="text-2xl font-bold text-gray-900 mb-6">Pesan Masuk</h1>
+                <div className="flex items-center justify-between mb-6">
+                    <h1 className="text-2xl font-bold text-gray-900">Pesan Masuk</h1>
+                    <div className="relative">
+                        <button
+                            onClick={() => setShowNewChat(!showNewChat)}
+                            className="bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-primary-700 transition-all shadow-sm"
+                        >
+                            + Chat Baru
+                        </button>
+                        {showNewChat && (
+                            <div className="absolute right-0 top-full mt-2 w-72 bg-white rounded-xl shadow-xl border border-gray-200 z-50">
+                                <div className="p-3 border-b border-gray-100">
+                                    <div className="relative">
+                                        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                                        <input
+                                            type="text"
+                                            value={newChatSearch}
+                                            onChange={(e) => setNewChatSearch(e.target.value)}
+                                            placeholder="Cari pelanggan..."
+                                            className="w-full pl-8 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+                                            autoFocus
+                                        />
+                                    </div>
+                                </div>
+                                <div className="max-h-60 overflow-y-auto">
+                                    {filteredPelanggan.length > 0 ? filteredPelanggan.map((p: any) => (
+                                        <Link
+                                            key={p.id_akun}
+                                            href={`/admin/chat/${p.id_akun}`}
+                                            onClick={() => setShowNewChat(false)}
+                                            className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-primary-50 transition-colors border-b border-gray-50 last:border-0"
+                                        >
+                                            <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-white font-bold text-xs shrink-0">
+                                                {p.nama?.[0] || 'P'}
+                                            </div>
+                                            {p.nama}
+                                        </Link>
+                                    )) : (
+                                        <p className="text-xs text-gray-400 text-center py-6">Pelanggan tidak ditemukan</p>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
 
                 <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
                     {items.length > 0 ? (
@@ -39,7 +91,16 @@ export default function AdminChatIndex() {
                     ) : (
                         <div className="text-center py-16">
                             <MessageCircle className="h-16 w-16 mx-auto mb-3 text-gray-200" />
-                            <p className="text-gray-400">Belum ada pesan masuk</p>
+                            <p className="text-gray-400 mb-4">Belum ada pesan masuk</p>
+                            {pelanggan.length > 0 && (
+                                <button
+                                    onClick={() => setShowNewChat(true)}
+                                    className="inline-flex items-center gap-2 bg-primary-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-primary-700 transition-all shadow-lg"
+                                >
+                                    <MessageCircle size={16} />
+                                    Mulai Chat dengan Pelanggan
+                                </button>
+                            )}
                         </div>
                     )}
                 </div>

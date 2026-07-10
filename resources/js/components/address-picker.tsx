@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import SearchableSelect from './searchable-select';
 
 interface Wilayah {
     code: string;
@@ -27,89 +28,68 @@ export default function AddressPicker({ value, onChange, errors }: AddressPicker
     const [kelurahans, setKelurahans] = useState<Wilayah[]>([]);
     const [loading, setLoading] = useState({ provinsi: false, kabupaten: false, kecamatan: false, kelurahan: false });
 
-    useEffect(() => {
-        fetchProvinsis();
-    }, []);
+    useEffect(() => { fetchProvinsis(); }, []);
 
     const fetchProvinsis = async () => {
         setLoading(prev => ({ ...prev, provinsi: true }));
-        try {
-            const res = await fetch('/wilayah/provinsi');
-            const data = await res.json();
-            setProvinsis(data);
-        } finally {
-            setLoading(prev => ({ ...prev, provinsi: false }));
-        }
+        try { const res = await fetch('/wilayah/provinsi'); setProvinsis(await res.json()); }
+        finally { setLoading(prev => ({ ...prev, provinsi: false })); }
     };
 
     const fetchKabupatens = async (provCode: string) => {
         if (!provCode) { setKabupatens([]); return; }
         setLoading(prev => ({ ...prev, kabupaten: true }));
-        try {
-            const res = await fetch(`/wilayah/kabupaten/${provCode}`);
-            const data = await res.json();
-            setKabupatens(data);
-        } finally {
-            setLoading(prev => ({ ...prev, kabupaten: false }));
-        }
+        try { const res = await fetch(`/wilayah/kabupaten/${provCode}`); setKabupatens(await res.json()); }
+        finally { setLoading(prev => ({ ...prev, kabupaten: false })); }
     };
 
     const fetchKecamatans = async (kabCode: string) => {
         if (!kabCode) { setKecamatans([]); return; }
         setLoading(prev => ({ ...prev, kecamatan: true }));
-        try {
-            const res = await fetch(`/wilayah/kecamatan/${kabCode}`);
-            const data = await res.json();
-            setKecamatans(data);
-        } finally {
-            setLoading(prev => ({ ...prev, kecamatan: false }));
-        }
+        try { const res = await fetch(`/wilayah/kecamatan/${kabCode}`); setKecamatans(await res.json()); }
+        finally { setLoading(prev => ({ ...prev, kecamatan: false })); }
     };
 
     const fetchKelurahans = async (kecCode: string) => {
         if (!kecCode) { setKelurahans([]); return; }
         setLoading(prev => ({ ...prev, kelurahan: true }));
-        try {
-            const res = await fetch(`/wilayah/kelurahan/${kecCode}`);
-            const data = await res.json();
-            setKelurahans(data);
-        } finally {
-            setLoading(prev => ({ ...prev, kelurahan: false }));
-        }
+        try { const res = await fetch(`/wilayah/kelurahan/${kecCode}`); setKelurahans(await res.json()); }
+        finally { setLoading(prev => ({ ...prev, kelurahan: false })); }
     };
 
-    const handleProvChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const val = e.target.value;
-        onChange('provinsi', val);
+    const handleProvChange = (code: string) => {
+        const name = provinsis.find(p => p.code === code)?.name || code;
+        onChange('provinsi', name);
         onChange('kabupaten', '');
         onChange('kecamatan', '');
         onChange('kelurahan', '');
         setKabupatens([]);
         setKecamatans([]);
         setKelurahans([]);
-        if (val) fetchKabupatens(val);
+        if (code) fetchKabupatens(code);
     };
 
-    const handleKabChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const val = e.target.value;
-        onChange('kabupaten', val);
+    const handleKabChange = (code: string) => {
+        const name = kabupatens.find(k => k.code === code)?.name || code;
+        onChange('kabupaten', name);
         onChange('kecamatan', '');
         onChange('kelurahan', '');
         setKecamatans([]);
         setKelurahans([]);
-        if (val) fetchKecamatans(val);
+        if (code) fetchKecamatans(code);
     };
 
-    const handleKecChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const val = e.target.value;
-        onChange('kecamatan', val);
+    const handleKecChange = (code: string) => {
+        const name = kecamatans.find(k => k.code === code)?.name || code;
+        onChange('kecamatan', name);
         onChange('kelurahan', '');
         setKelurahans([]);
-        if (val) fetchKelurahans(val);
+        if (code) fetchKelurahans(code);
     };
 
-    const handleKelChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        onChange('kelurahan', e.target.value);
+    const handleKelChange = (code: string) => {
+        const name = kelurahans.find(k => k.code === code)?.name || code;
+        onChange('kelurahan', name);
     };
 
     return (
@@ -117,64 +97,22 @@ export default function AddressPicker({ value, onChange, errors }: AddressPicker
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Provinsi</label>
-                    <select
-                        value={value.provinsi}
-                        onChange={handleProvChange}
-                        className="w-full rounded-lg border-gray-300 border p-2.5 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                    >
-                        <option value="">Pilih Provinsi</option>
-                        {provinsis.map((p) => (
-                            <option key={p.code} value={p.code}>{p.name}</option>
-                        ))}
-                    </select>
+                    <SearchableSelect value={value.provinsi} onChange={handleProvChange} options={provinsis} placeholder="Pilih Provinsi" loading={loading.provinsi} />
                     {errors?.provinsi && <p className="text-red-500 text-sm mt-1">{errors.provinsi}</p>}
                 </div>
-
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Kabupaten/Kota</label>
-                    <select
-                        value={value.kabupaten}
-                        onChange={handleKabChange}
-                        disabled={!value.provinsi}
-                        className="w-full rounded-lg border-gray-300 border p-2.5 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-100"
-                    >
-                        <option value="">Pilih Kabupaten/Kota</option>
-                        {kabupatens.map((k) => (
-                            <option key={k.code} value={k.code}>{k.name}</option>
-                        ))}
-                    </select>
+                    <SearchableSelect value={value.kabupaten} onChange={handleKabChange} options={kabupatens} placeholder="Pilih Kabupaten/Kota" disabled={!value.provinsi} loading={loading.kabupaten} />
                     {errors?.kabupaten && <p className="text-red-500 text-sm mt-1">{errors.kabupaten}</p>}
                 </div>
-
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Kecamatan</label>
-                    <select
-                        value={value.kecamatan}
-                        onChange={handleKecChange}
-                        disabled={!value.kabupaten}
-                        className="w-full rounded-lg border-gray-300 border p-2.5 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-100"
-                    >
-                        <option value="">Pilih Kecamatan</option>
-                        {kecamatans.map((k) => (
-                            <option key={k.code} value={k.code}>{k.name}</option>
-                        ))}
-                    </select>
+                    <SearchableSelect value={value.kecamatan} onChange={handleKecChange} options={kecamatans} placeholder="Pilih Kecamatan" disabled={!value.kabupaten} loading={loading.kecamatan} />
                     {errors?.kecamatan && <p className="text-red-500 text-sm mt-1">{errors.kecamatan}</p>}
                 </div>
-
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Kelurahan/Desa</label>
-                    <select
-                        value={value.kelurahan}
-                        onChange={handleKelChange}
-                        disabled={!value.kecamatan}
-                        className="w-full rounded-lg border-gray-300 border p-2.5 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-100"
-                    >
-                        <option value="">Pilih Kelurahan/Desa</option>
-                        {kelurahans.map((k) => (
-                            <option key={k.code} value={k.code}>{k.name}</option>
-                        ))}
-                    </select>
+                    <SearchableSelect value={value.kelurahan} onChange={handleKelChange} options={kelurahans} placeholder="Pilih Kelurahan/Desa" disabled={!value.kecamatan} loading={loading.kelurahan} />
                     {errors?.kelurahan && <p className="text-red-500 text-sm mt-1">{errors.kelurahan}</p>}
                 </div>
             </div>

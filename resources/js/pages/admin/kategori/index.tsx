@@ -51,19 +51,19 @@ export default function AdminKategoriIndex() {
                         <table className="w-full text-sm">
                             <thead className="bg-gray-50 text-gray-600">
                                 <tr>
-                                    <th className="text-left px-5 py-3 font-medium w-16">No</th>
-                                    <th className="text-left px-5 py-3 font-medium">Nama Kategori</th>
-                                    <th className="text-left px-5 py-3 font-medium">Deskripsi</th>
+                                    <th className="text-center px-5 py-3 font-medium w-16">No</th>
+                                    <th className="text-center px-5 py-3 font-medium">Nama Kategori</th>
+                                    <th className="text-center px-5 py-3 font-medium">Deskripsi</th>
                                     <th className="text-center px-5 py-3 font-medium w-32">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100">
                                 {items.length > 0 ? items.map((item, i) => (
                                     <tr key={item.id_kategori} className="hover:bg-gray-50">
-                                        <td className="px-5 py-3 text-gray-500">{i + 1}</td>
-                                        <td className="px-5 py-3 font-medium text-gray-900">{item.nama_kategori}</td>
-                                        <td className="px-5 py-3 text-gray-500">{item.deskripsi || '-'}</td>
-                                        <td className="px-5 py-3">
+                                        <td className="px-5 py-3 text-center text-gray-500">{i + 1}</td>
+                                        <td className="px-5 py-3 text-center font-medium text-gray-900">{item.nama_kategori}</td>
+                                        <td className="px-5 py-3 text-center text-gray-500">{item.deskripsi || '-'}</td>
+                                        <td className="px-5 py-3 text-center">
                                             <div className="flex items-center justify-center gap-2">
                                                 <Link href={`/admin/kategori/${item.id_kategori}/edit`} className="bg-amber-400 text-white p-2 rounded-lg hover:bg-amber-500 transition-all" title="Edit">
                                                     <Pencil size={16} />

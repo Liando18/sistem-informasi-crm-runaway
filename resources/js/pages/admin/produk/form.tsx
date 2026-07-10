@@ -46,8 +46,8 @@ interface PageErrors {
 }
 
 function formatRupiah(value: string | number): string {
-    const num = typeof value === 'string' ? value.replace(/[^\d]/g, '') : String(value);
-    return num.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    const num = Math.round(typeof value === 'string' ? parseFloat(value) : value);
+    return String(num).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 }
 
 function parseRupiah(value: string): number {
@@ -70,7 +70,7 @@ export default function AdminProdukForm() {
     const [nama_produk, setNama_produk] = useState(produk?.nama_produk || '');
     const [kategori_id, setKategori_id] = useState(produk?.kategori_id || '');
     const [diskon_id, setDiskon_id] = useState(produk?.diskon_id || null);
-    const [harga, setHarga] = useState(produk?.harga ? String(produk.harga) : '');
+    const [harga, setHarga] = useState(produk?.harga ? formatRupiah(produk.harga) : '');
     const [stok, setStok] = useState(produk?.stok || '');
     const [deskripsi, setDeskripsi] = useState(produk?.deskripsi || '');
     const [processing, setProcessing] = useState(false);
@@ -198,7 +198,6 @@ export default function AdminProdukForm() {
                                     maxLength={30}
                                     className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
                                 />
-                                <p className="text-xs text-gray-400 mt-1">Maksimal 30 karakter</p>
                                 {errors?.nama_produk && <p className="text-red-500 text-sm mt-1">{errors.nama_produk}</p>}
                             </div>
                             <div>
@@ -230,7 +229,6 @@ export default function AdminProdukForm() {
                                         className="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
                                     />
                                 </div>
-                                <p className="text-xs text-gray-400 mt-1">Dalam Rupiah, contoh: 5.000</p>
                                 {errors?.harga && <p className="text-red-500 text-sm mt-1">{errors.harga}</p>}
                             </div>
                             <div>
@@ -248,22 +246,6 @@ export default function AdminProdukForm() {
                                 {errors?.diskon_id && <p className="text-red-500 text-sm mt-1">{errors.diskon_id}</p>}
                             </div>
                         </div>
-
-                        {!hasVariasi && (
-                            <div className="max-w-xs">
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Stok</label>
-                                <input
-                                    type="number"
-                                    value={stok}
-                                    onChange={e => setStok(e.target.value)}
-                                    required
-                                    min={0}
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
-                                />
-                                <p className="text-xs text-gray-400 mt-1">Minimal 0</p>
-                                {errors?.stok && <p className="text-red-500 text-sm mt-1">{errors.stok}</p>}
-                            </div>
-                        )}
 
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
@@ -317,8 +299,6 @@ export default function AdminProdukForm() {
                                     ))}
                                 </div>
                             )}
-
-                            <p className="text-xs text-gray-400 mb-3">Format: JPG, PNG, JPEG, WEBP. Maksimal 1 MB per gambar. Maksimal 5 gambar.</p>
 
                             {totalGambars < 5 && (
                                 <label className="flex items-center justify-center gap-2 border-2 border-dashed border-gray-300 rounded-lg px-4 py-6 cursor-pointer hover:border-primary-400 hover:bg-primary-50/30 transition-all text-gray-500 hover:text-primary-600">
@@ -398,6 +378,21 @@ export default function AdminProdukForm() {
                             )}
                             {errors?.variasis && <p className="text-red-500 text-sm mt-1">{errors.variasis}</p>}
                         </div>
+
+                        {!hasVariasi && (
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Stok</label>
+                                <input
+                                    type="number"
+                                    value={stok}
+                                    onChange={e => setStok(e.target.value)}
+                                    required
+                                    min={0}
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+                                />
+                                {errors?.stok && <p className="text-red-500 text-sm mt-1">{errors.stok}</p>}
+                            </div>
+                        )}
 
                         <div className="flex items-center gap-3 pt-2">
                             <button type="submit" disabled={processing} className="inline-flex items-center gap-2 bg-primary-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-primary-700 transition-all shadow-sm disabled:opacity-50">

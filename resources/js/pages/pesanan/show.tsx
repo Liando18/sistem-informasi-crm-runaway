@@ -1,5 +1,5 @@
 import { Head, Link, usePage, router } from '@inertiajs/react';
-import { Package, Truck, CheckCircle, XCircle, Clock, CreditCard, MapPin, Phone, User, ArrowLeft, ShoppingBag, Map } from 'lucide-react';
+import { Package, Truck, CheckCircle, XCircle, Clock, CreditCard, MapPin, Phone, User, ArrowLeft, ShoppingBag, Map, Printer } from 'lucide-react';
 
 function rupiah(value: number): string {
     return 'Rp ' + new Intl.NumberFormat('id-ID').format(Math.round(value));
@@ -24,18 +24,20 @@ const statusColors: Record<string, string> = {
 };
 
 export default function PesananShow() {
-    const { pesanan, pembayaran } = usePage().props;
+    const { pesanan } = usePage().props;
 
     const currentStepIndex = steps.findIndex((s) => s.key === pesanan.status);
     const isDibatalkan = pesanan.status === 'dibatalkan';
 
     function handlePayNow() {
-        router.post(`/pembayaran/snap/${pesanan.id}`, {}, { preserveScroll: true });
+        router.get(`/pembayaran/pilih/${pesanan.id_pesanan}`, {}, { preserveScroll: true });
     }
+
+    const pay = pesanan.pembayaran;
 
     return (
         <>
-            <Head title={`Pesanan #${pesanan.id} - Runaway Denim`} />
+            <Head title={`Pesanan #${pesanan.id_pesanan} - Runaway Denim`} />
 
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <Link href="/pesanan" className="inline-flex items-center gap-2 text-gray-500 hover:text-primary-600 transition-colors mb-6 group">
@@ -46,7 +48,7 @@ export default function PesananShow() {
                 <div className="bg-white rounded-2xl border border-gray-100 p-6 md:p-7 shadow-sm mb-6">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                         <div>
-                            <h1 className="text-2xl font-bold text-gray-900">Pesanan #{pesanan.id}</h1>
+                            <h1 className="text-2xl font-bold text-gray-900">Pesanan #{pesanan.id_pesanan}</h1>
                             <p className="text-sm text-gray-400 mt-1">{new Date(pesanan.tgl_pesanan || pesanan.created_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
                         </div>
                         <span className={`px-4 py-1.5 rounded-full text-sm font-semibold border ${statusColors[pesanan.status] || 'bg-gray-50 text-gray-600 border-gray-200'}`}>
@@ -118,9 +120,22 @@ export default function PesananShow() {
                                 {pesanan.no_telp_kirim}
                             </p>
                             {pesanan.latitude && pesanan.longitude && (
-                                <a href={`https://maps.google.com/maps?q=${pesanan.latitude},${pesanan.longitude}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-primary-600 hover:text-primary-700 font-medium text-xs">
-                                    <Map size={14} /> Lihat di Google Maps
-                                </a>
+                                <div className="space-y-2">
+                                    <div className="rounded-xl overflow-hidden border border-gray-200">
+                                        <iframe
+                                            src={`https://maps.google.com/maps?q=${pesanan.latitude},${pesanan.longitude}&z=15&output=embed`}
+                                            width="100%"
+                                            height="200"
+                                            style={{ border: 0 }}
+                                            allowFullScreen
+                                            loading="lazy"
+                                            referrerPolicy="no-referrer-when-downgrade"
+                                        />
+                                    </div>
+                                    <a href={`https://maps.google.com/maps?q=${pesanan.latitude},${pesanan.longitude}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-primary-600 hover:text-primary-700 font-medium text-xs">
+                                        <Map size={14} /> Buka di Google Maps
+                                    </a>
+                                </div>
                             )}
                             {pesanan.catatan && (
                                 <div className="bg-gray-50 rounded-xl p-3 mt-2">
@@ -136,37 +151,37 @@ export default function PesananShow() {
                             <CreditCard size={20} className="text-primary-600" />
                             Pembayaran
                         </h3>
-                        {pembayaran ? (
+                        {pay ? (
                             <div className="space-y-3 text-sm">
                                 <div className="flex justify-between items-center py-2 border-b border-gray-50">
                                     <span className="text-gray-500">Metode</span>
-                                    <span className="font-semibold text-gray-900">{pembayaran.metode || '-'}</span>
+                                    <span className="font-semibold text-gray-900">{pay.metode || '-'}</span>
                                 </div>
                                 <div className="flex justify-between items-center py-2 border-b border-gray-50">
                                     <span className="text-gray-500">Status</span>
-                                    <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${statusColors[pembayaran.status] || ''}`}>
-                                        {pembayaran.status?.charAt(0).toUpperCase() + pembayaran.status?.slice(1)}
+                                    <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${statusColors[pay.status] || ''}`}>
+                                        {pay.status?.charAt(0).toUpperCase() + pay.status?.slice(1)}
                                     </span>
                                 </div>
                                 <div className="flex justify-between items-center py-2">
                                     <span className="text-gray-500">Total</span>
-                                    <span className="font-bold text-primary-600 text-lg">{rupiah(pembayaran.jumlah || pesanan.total)}</span>
+                                    <span className="font-bold text-primary-600 text-lg">{rupiah(pay.jumlah || pesanan.grand_total)}</span>
                                 </div>
-                                {pesanan.status === 'pending' && (
-                                    <button onClick={handlePayNow} className="mt-2 w-full bg-gradient-to-r from-primary-600 to-primary-600 text-white py-3 rounded-xl font-bold hover:from-primary-700 hover:to-primary-700 transition-all shadow-md shadow-primary-200 text-sm">
-                                        Bayar Sekarang
-                                    </button>
-                                )}
                             </div>
                         ) : (
                             <div>
                                 <p className="text-gray-400 text-sm mb-4">Belum ada pembayaran.</p>
-                                {pesanan.status === 'pending' && (
-                                    <button onClick={handlePayNow} className="w-full bg-gradient-to-r from-primary-600 to-primary-600 text-white py-3 rounded-xl font-bold hover:from-primary-700 hover:to-primary-700 transition-all shadow-md shadow-primary-200 text-sm">
-                                        Bayar Sekarang
-                                    </button>
-                                )}
                             </div>
+                        )}
+                        {pesanan.status === 'pending' && (!pay || pay.status !== 'sukses') && (
+                            <button onClick={handlePayNow} className="mt-2 w-full bg-gradient-to-r from-primary-600 to-primary-600 text-white py-3 rounded-xl font-bold hover:from-primary-700 hover:to-primary-700 transition-all shadow-md shadow-primary-200 text-sm">
+                                Bayar Sekarang
+                            </button>
+                        )}
+                        {pay?.status === 'sukses' && (
+                            <Link href={`/pesanan/${pesanan.id_pesanan}/invoice`} className="mt-2 w-full flex items-center justify-center gap-2 bg-purple-600 text-white py-3 rounded-xl font-bold hover:bg-purple-700 transition-all text-sm">
+                                <Printer size={16} /> Cetak Invoice
+                            </Link>
                         )}
                     </div>
                 </div>
@@ -189,15 +204,15 @@ export default function PesananShow() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50">
-                                {(pesanan.detailPesanans || pesanan.detail_pesanan || pesanan.items || []).map((item: any, i: number) => (
+                                {(pesanan.detail_pesanans || pesanan.detailPesanans || []).map((item: any, i: number) => (
                                     <tr key={i} className="hover:bg-gray-50/50 transition-colors">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-12 h-12 rounded-xl bg-gray-100 overflow-hidden shrink-0">
-                                                    {item.produk?.gambar && <img src={`/storage/${item.produk.gambar}`} alt={item.produk.nama} className="w-full h-full object-cover" />}
+                                                    {item.produk?.gambar_utama?.gambar && <img src={`/storage/${item.produk.gambar_utama.gambar}`} alt={item.produk.nama_produk} className="w-full h-full object-cover" />}
                                                 </div>
                                                 <div>
-                                                    <span className="font-semibold text-gray-900">{item.produk?.nama || item.nama_produk}</span>
+                                                    <span className="font-semibold text-gray-900">{item.produk?.nama_produk || item.nama_produk}</span>
                                                     {(item.variasi?.ukuran || item.variasi?.warna) && (
                                                         <div className="flex gap-2 mt-0.5 text-xs text-gray-400">
                                                             {item.variasi.ukuran && <span>Ukuran: {item.variasi.ukuran}</span>}
@@ -208,15 +223,15 @@ export default function PesananShow() {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 text-center font-medium">{rupiah(item.harga)}</td>
-                                        <td className="px-6 py-4 text-center font-medium">{item.qty || item.quantity}</td>
-                                        <td className="px-6 py-4 text-right font-bold">{rupiah((item.harga) * (item.qty || item.quantity))}</td>
+                                        <td className="px-6 py-4 text-center font-medium">{item.jumlah}</td>
+                                        <td className="px-6 py-4 text-right font-bold">{rupiah(item.harga * item.jumlah)}</td>
                                     </tr>
                                 ))}
                             </tbody>
                             <tfoot>
                                 <tr className="bg-gradient-to-r from-primary-50 to-primary-50">
                                     <td colSpan={3} className="px-6 py-4 text-right font-semibold text-gray-700">Total</td>
-                                    <td className="px-6 py-4 text-right font-bold text-primary-600 text-lg">{rupiah(pesanan.total)}</td>
+                                    <td className="px-6 py-4 text-right font-bold text-primary-600 text-lg">{rupiah(pesanan.grand_total)}</td>
                                 </tr>
                             </tfoot>
                         </table>

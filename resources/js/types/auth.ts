@@ -1,8 +1,11 @@
 export type User = {
-    id: number;
-    name: string;
+    id_akun: number;
+    nama: string;
     email: string;
-    avatar?: string;
+    no_telp?: string | null;
+    alamat?: string | null;
+    foto?: string | null;
+    role: string;
     email_verified_at: string | null;
     two_factor_enabled?: boolean;
     created_at: string;

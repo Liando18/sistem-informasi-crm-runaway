@@ -5,6 +5,7 @@ namespace App\Actions\Fortify;
 use App\Concerns\PasswordValidationRules;
 use App\Concerns\ProfileValidationRules;
 use App\Models\Akun;
+use App\Services\VoucherService;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
 
@@ -12,11 +13,6 @@ class CreateNewUser implements CreatesNewUsers
 {
     use PasswordValidationRules, ProfileValidationRules;
 
-    /**
-     * Validate and create a newly registered user.
-     *
-     * @param  array<string, string>  $input
-     */
     public function create(array $input): Akun
     {
         Validator::make($input, [
@@ -24,10 +20,14 @@ class CreateNewUser implements CreatesNewUsers
             'password' => $this->passwordRules(),
         ])->validate();
 
-        return Akun::create([
+        $akun = Akun::create([
             'nama' => $input['name'],
             'email' => $input['email'],
             'password' => $input['password'],
         ]);
+
+        VoucherService::buatVoucherNewUser($akun);
+
+        return $akun;
     }
 }

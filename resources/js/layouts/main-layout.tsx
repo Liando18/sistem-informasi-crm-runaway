@@ -1,6 +1,6 @@
 import { Link, router, usePage } from '@inertiajs/react'
 import { useState, useEffect } from 'react'
-import { Menu, X, ShoppingBag, ShoppingCart, Package, LogOut, User, ChevronDown } from 'lucide-react'
+import { Menu, X, ShoppingBag, ShoppingCart, Package, LogOut, User, ChevronDown, MessageCircle } from 'lucide-react'
 
 interface AuthUser {
     nama: string
@@ -102,6 +102,9 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
                                                         <Link href="/pesanan" onClick={() => setUserMenuOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
                                                             <Package size={16} /> Pesanan Saya
                                                         </Link>
+                                                        <Link href="/chat" onClick={() => setUserMenuOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                                                            <MessageCircle size={16} /> Pesan
+                                                        </Link>
                                                         <Link href="/settings/profile" onClick={() => setUserMenuOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
                                                             <User size={16} /> Profil
                                                         </Link>
@@ -172,6 +175,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
                                             <>
                                                 <Link href="/keranjang" onClick={() => setMobileOpen(false)} className="px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-xl font-medium">Keranjang</Link>
                                                 <Link href="/pesanan" onClick={() => setMobileOpen(false)} className="px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-xl font-medium">Pesanan Saya</Link>
+                                                <Link href="/chat" onClick={() => setMobileOpen(false)} className="px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-xl font-medium">Pesan</Link>
                                             </>
                                         )}
                                         <button onClick={handleLogout} className="px-4 py-3 text-red-600 hover:bg-red-50 rounded-xl font-medium text-left">Logout</button>
@@ -190,6 +194,25 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
             <main className={isTransparentPage ? '' : 'pt-16'}>
                 {children}
             </main>
+
+            {user && user.role === 'pelanggan' ? (
+                <Link
+                    href="/chat"
+                    className="fixed bottom-6 right-6 bg-gradient-to-br from-primary-500 to-primary-600 text-white p-4 rounded-full shadow-2xl hover:shadow-primary-500/40 hover:scale-110 transition-all duration-300 z-50 group"
+                    aria-label="Chat"
+                >
+                    <MessageCircle size={28} className="group-hover:rotate-12 transition-transform" />
+                </Link>
+            ) : !user ? (
+                <a
+                    href="https://wa.me/6282183539906"
+                    target="_blank"
+                    className="fixed bottom-6 right-6 bg-gradient-to-br from-green-400 to-green-600 text-white p-4 rounded-full shadow-2xl hover:shadow-green-500/40 hover:scale-110 transition-all duration-300 z-50 group"
+                    aria-label="Chat WhatsApp"
+                >
+                    <MessageCircle size={28} className="group-hover:rotate-12 transition-transform" />
+                </a>
+            ) : null}
         </div>
     )
 }

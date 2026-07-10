@@ -130,10 +130,10 @@ export default function AdminProdukIndex() {
                         <table className="w-full text-sm">
                             <thead className="bg-gray-50 text-gray-600">
                                 <tr>
-                                    <th className="text-left px-5 py-3 font-medium w-12">No</th>
-                                    <th className="text-left px-5 py-3 font-medium">Nama</th>
-                                    <th className="text-left px-5 py-3 font-medium">Kategori</th>
-                                    <th className="text-left px-5 py-3 font-medium">Harga</th>
+                                    <th className="text-center px-5 py-3 font-medium w-12">No</th>
+                                    <th className="text-center px-5 py-3 font-medium">Nama</th>
+                                    <th className="text-center px-5 py-3 font-medium">Kategori</th>
+                                    <th className="text-center px-5 py-3 font-medium">Harga</th>
                                     <th className="text-center px-5 py-3 font-medium">Stok</th>
                                     <th className="text-center px-5 py-3 font-medium">Diskon</th>
                                     <th className="text-center px-5 py-3 font-medium w-36">Aksi</th>
@@ -142,10 +142,10 @@ export default function AdminProdukIndex() {
                             <tbody className="divide-y divide-gray-100">
                                 {items.length > 0 ? items.map((item, i) => (
                                     <tr key={item.id_produk} className="hover:bg-gray-50">
-                                        <td className="px-5 py-3 text-gray-500">{produks?.from ? produks.from + i : i + 1}</td>
-                                        <td className="px-5 py-3 font-medium text-gray-900">{item.nama_produk}</td>
-                                        <td className="px-5 py-3 text-gray-500">{item.kategori?.nama_kategori || '-'}</td>
-                                        <td className="px-5 py-3 text-right font-medium">{rupiah(item.harga)}</td>
+                                        <td className="px-5 py-3 text-center text-gray-500">{produks?.from ? produks.from + i : i + 1}</td>
+                                        <td className="px-5 py-3 text-center font-medium text-gray-900">{item.nama_produk}</td>
+                                        <td className="px-5 py-3 text-center text-gray-500">{item.kategori?.nama_kategori || '-'}</td>
+                                        <td className="px-5 py-3 text-center font-medium">{rupiah(item.harga)}</td>
                                         <td className="px-5 py-3 text-center">
                                             {item.variasis && item.variasis.length > 0 ? (
                                                 <div>

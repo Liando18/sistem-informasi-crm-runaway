@@ -46,21 +46,23 @@ return Application::configure(basePath: dirname(__DIR__))
                 return null;
             }
 
-            $status = $e instanceof HttpExceptionInterface
-                ? $e->getStatusCode()
-                : ($e instanceof AuthorizationException ? 403 : 500);
+            if (! config('app.debug')) {
+                $status = $e instanceof HttpExceptionInterface
+                    ? $e->getStatusCode()
+                    : ($e instanceof AuthorizationException ? 403 : 500);
 
-            if (in_array($status, [403, 404, 500, 503])) {
-                $pages = [
-                    403 => 'errors/403',
-                    404 => 'errors/404',
-                    500 => 'errors/500',
-                    503 => 'errors/500',
-                ];
+                if (in_array($status, [403, 404, 500, 503])) {
+                    $pages = [
+                        403 => 'errors/403',
+                        404 => 'errors/404',
+                        500 => 'errors/500',
+                        503 => 'errors/500',
+                    ];
 
-                return Inertia::render($pages[$status] ?? 'errors/500', [
-                    'status' => $status,
-                ])->toResponse($request)->setStatusCode($status);
+                    return Inertia::render($pages[$status] ?? 'errors/500', [
+                        'status' => $status,
+                    ])->toResponse($request)->setStatusCode($status);
+                }
             }
 
             return null;

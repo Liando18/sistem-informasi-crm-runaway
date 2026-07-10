@@ -270,14 +270,7 @@ export default function Tentang() {
                 </div>
             </footer>
 
-            <a
-                href="https://wa.me/6282183539906"
-                target="_blank"
-                className="fixed bottom-6 right-6 bg-gradient-to-br from-green-400 to-green-600 text-white p-4 rounded-full shadow-2xl hover:shadow-green-500/40 hover:scale-110 transition-all duration-300 z-50 group"
-                aria-label="Chat WhatsApp"
-            >
-                <MessageCircle size={28} className="group-hover:rotate-12 transition-transform" />
-            </a>
+
         </>
     )
 }
