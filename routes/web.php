@@ -38,6 +38,13 @@ Route::post('/register/send-otp', [OtpRegisterController::class, 'sendOtp'])->na
 Route::post('/register/verify-otp', [OtpRegisterController::class, 'verifyOtp'])->name('register.step2');
 Route::post('/register/complete', [OtpRegisterController::class, 'complete'])->name('register.complete');
 
+use App\Http\Controllers\Auth\PasswordResetController;
+
+Route::get('/forgot-password', fn () => inertia('auth/forgot-password'))->name('password.request');
+Route::post('/forgot-password', [PasswordResetController::class, 'sendOtp'])->name('password.send-otp');
+Route::get('/reset-password', fn () => inertia('auth/reset-password'))->name('password.reset');
+Route::post('/reset-password', [PasswordResetController::class, 'reset'])->name('password.update');
+
 // Authenticated customer routes
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', function () {

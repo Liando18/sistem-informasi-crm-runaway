@@ -13,12 +13,16 @@ class OtpMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public function __construct(public string $otp, public string $nama) {}
+    public function __construct(
+        public string $otp,
+        public string $nama,
+        public string $keperluan = 'Registrasi',
+    ) {}
 
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Kode OTP Registrasi - Runaway Denim',
+            subject: "Kode OTP {$this->keperluan} - Runaway Denim",
         );
     }
 
