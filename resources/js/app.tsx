@@ -68,7 +68,7 @@ createInertiaApp({
                 return MainLayout
         }
     },
-    strictMode: true,
+    strictMode: import.meta.env.PROD,
     withApp(app) {
         return (
             <ErrorBoundary>

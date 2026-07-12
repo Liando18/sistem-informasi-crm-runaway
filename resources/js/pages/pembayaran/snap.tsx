@@ -32,6 +32,10 @@ export default function Snap({ snapToken, snapRedirectUrl, pesanan }: SnapProps)
       setSnapLoading(false)
     }
     document.body.appendChild(script)
+
+    return () => {
+      document.body.removeChild(script)
+    }
   }, [])
 
   useEffect(() => {
