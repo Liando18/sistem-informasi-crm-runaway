@@ -43,7 +43,7 @@ trait ProfileValidationRules
             'required',
             'string',
             'email',
-            'max:255',
+            'max:20',
             $userId === null
                 ? Rule::unique(Akun::class)
                 : Rule::unique(Akun::class)->ignore($userId, 'id_akun'),

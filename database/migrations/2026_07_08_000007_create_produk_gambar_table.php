@@ -9,12 +9,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('produk_gambar', function (Blueprint $table) {
-            $table->integer('id_produk_gambar', true);
-            $table->integer('produk_id');
-            $table->foreign('produk_id')->references('id_produk')->on('produk')->cascadeOnDelete();
-            $table->string('gambar');
+            $table->unsignedInteger('id_produk_gambar', true);
+            $table->unsignedInteger('produk_id');
+            $table->text('gambar');
             $table->boolean('is_utama')->default(false);
             $table->timestamps();
+
+            $table->foreign('produk_id')->references('id_produk')->on('produk')->cascadeOnDelete();
         });
     }
 

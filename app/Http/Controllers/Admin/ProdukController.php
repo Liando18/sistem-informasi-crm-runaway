@@ -66,7 +66,7 @@ class ProdukController extends Controller
             'gambars.*' => 'image|mimes:jpg,png,jpeg,webp|max:1024',
             'variasis' => 'nullable|array',
             'variasis.*.ukuran' => 'required|string|max:20',
-            'variasis.*.warna' => 'required|string|max:30',
+            'variasis.*.warna' => 'required|string|max:20',
             'variasis.*.stok' => 'required|integer|min:0',
         ]);
 
@@ -151,7 +151,7 @@ class ProdukController extends Controller
             'gambars.*' => 'image|mimes:jpg,png,jpeg,webp|max:1024',
             'variasis' => 'nullable|array',
             'variasis.*.ukuran' => 'required|string|max:20',
-            'variasis.*.warna' => 'required|string|max:30',
+            'variasis.*.warna' => 'required|string|max:20',
             'variasis.*.stok' => 'required|integer|min:0',
         ]);
 

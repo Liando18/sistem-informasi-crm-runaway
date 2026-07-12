@@ -40,6 +40,7 @@ export default function AdminKategoriForm() {
                                 value={data.nama_kategori}
                                 onChange={(e) => setData('nama_kategori', e.target.value)}
                                 required
+                                maxLength={30}
                                 className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
                             />
                             {errors.nama_kategori && <p className="text-red-500 text-sm mt-1">{errors.nama_kategori}</p>}

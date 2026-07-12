@@ -1,0 +1,133 @@
+@startuml
+!define ACTOR_BG #lightblue
+!define UC_BG #lightyellow
+!define SYSTEM_BORDER #333333
+
+left to right direction
+skinparam packageBorderColor #333333
+skinparam packageBackgroundColor #FFFFF0
+skinparam actor {
+  BackgroundColor #A9D0F5
+  BorderColor #2E6DA4
+  FontColor #000000
+  FontStyle bold
+}
+skinparam usecase {
+  BackgroundColor #FFF8DC
+  BorderColor #8B7355
+  FontColor #000000
+}
+skinparam arrow {
+  Color #555555
+  FontColor #555555
+}
+
+rectangle "Runaway Denim" {
+  ' ===== Use Case Pelanggan =====
+  usecase "UC1" as UC_MelihatProduk
+  usecase "UC2" as UC_MelihatDetailProduk
+  usecase "UC3" as UC_RegistrasiAkun
+  usecase "UC4" as UC_LoginLogout
+  usecase "UC5" as UC_KelolaKeranjang
+  usecase "UC6" as UC_Checkout
+  usecase "UC7" as UC_MelihatPesanan
+  usecase "UC8" as UC_MembayarPesanan
+  usecase "UC9" as UC_MelihatInvoice
+  usecase "UC10" as UC_MemberiTestimoni
+  usecase "UC11" as UC_ChatAdmin
+  usecase "UC12" as UC_KelolaProfil
+  usecase "UC13" as UC_MendapatVoucher
+
+  ' ===== Use Case Admin =====
+  usecase "UC14" as UC_AdminDashboard
+  usecase "UC15" as UC_KelolaKategori
+  usecase "UC16" as UC_KelolaProduk
+  usecase "UC17" as UC_KelolaDiskon
+  usecase "UC18" as UC_KelolaPesanan
+  usecase "UC19" as UC_KonfirmasiPembayaran
+  usecase "UC20" as UC_ModerasiTestimoni
+  usecase "UC21" as UC_ChatPelanggan
+  usecase "UC22" as UC_KelolaPelanggan
+
+  ' ===== Use Case Owner =====
+  usecase "UC23" as UC_OwnerDashboard
+  usecase "UC24" as UC_LaporanStok
+  usecase "UC25" as UC_LaporanPenjualan
+  usecase "UC26" as UC_LihatPelanggan
+  usecase "UC27" as UC_OwnerModerasiTestimoni
+
+  ' ===== Use Case Umum =====
+  usecase "UC28" as UC_GantiPassword
+  usecase "UC29" as UC_Atur2FA
+  usecase "UC30" as UC_EditProfil
+  usecase "UC31" as UC_AturTema
+}
+
+' ===== Aktor =====
+actor ":Pelanggan" as Pelanggan
+actor ":Admin" as Admin
+actor ":Owner" as Owner
+
+' ===== Relasi Pelanggan =====
+Pelanggan --> UC_MelihatProduk
+Pelanggan --> UC_MelihatDetailProduk
+Pelanggan --> UC_RegistrasiAkun
+Pelanggan --> UC_LoginLogout
+Pelanggan --> UC_KelolaKeranjang
+Pelanggan --> UC_Checkout
+Pelanggan --> UC_MelihatPesanan
+Pelanggan --> UC_MembayarPesanan
+Pelanggan --> UC_MelihatInvoice
+Pelanggan --> UC_MemberiTestimoni
+Pelanggan --> UC_ChatAdmin
+Pelanggan --> UC_KelolaProfil
+Pelanggan --> UC_MendapatVoucher
+
+' ===== Relasi Admin =====
+Admin --> UC_AdminDashboard
+Admin --> UC_KelolaKategori
+Admin --> UC_KelolaProduk
+Admin --> UC_KelolaDiskon
+Admin --> UC_KelolaPesanan
+Admin --> UC_KonfirmasiPembayaran
+Admin --> UC_ModerasiTestimoni
+Admin --> UC_ChatPelanggan
+Admin --> UC_KelolaPelanggan
+
+' ===== Relasi Owner =====
+Owner --> UC_OwnerDashboard
+Owner --> UC_LaporanStok
+Owner --> UC_LaporanPenjualan
+Owner --> UC_LihatPelanggan
+Owner --> UC_OwnerModerasiTestimoni
+
+' ===== Relasi Use Case Umum (semua aktor) =====
+Pelanggan --> UC_GantiPassword
+Admin --> UC_GantiPassword
+Owner --> UC_GantiPassword
+Pelanggan --> UC_Atur2FA
+Admin --> UC_Atur2FA
+Owner --> UC_Atur2FA
+Pelanggan --> UC_EditProfil
+Admin --> UC_EditProfil
+Owner --> UC_EditProfil
+Pelanggan --> UC_AturTema
+Admin --> UC_AturTema
+Owner --> UC_AturTema
+
+' ===== Include / Extend =====
+UC_RegistrasiAkun .> UC3a : <<include>>\nVerifikasi OTP
+UC_Checkout .> UC6a : <<include>>\nHitung Ongkir
+UC_Checkout .> UC6b : <<include>>\nPakai Voucher
+UC_Checkout .> UC_MembayarPesanan : <<extend>>
+UC_MendapatVoucher .> UC13a : <<extend>>\nVoucher New User
+UC_MendapatVoucher .> UC13b : <<extend>>\nVoucher Loyalitas
+
+' ===== Use Case tambahan untuk include =====
+usecase "(Verifikasi OTP)" as UC3a
+usecase "(Hitung Ongkir)" as UC6a
+usecase "(Pakai Voucher)" as UC6b
+usecase "(Voucher New User)" as UC13a
+usecase "(Voucher Loyalitas)" as UC13b
+
+@enduml

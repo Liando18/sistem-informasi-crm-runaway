@@ -189,6 +189,7 @@ export default function Register() {
                                     required
                                     autoFocus
                                     autoComplete="name"
+                                    maxLength={30}
                                 />
                             </div>
                             {errors.name && (
@@ -218,6 +219,7 @@ export default function Register() {
                                     placeholder="nama@email.com"
                                     required
                                     autoComplete="email"
+                                    maxLength={20}
                                 />
                             </div>
                             {errors.email && (
@@ -377,6 +379,7 @@ export default function Register() {
                                     required
                                     autoFocus
                                     autoComplete="new-password"
+                                    maxLength={10}
                                 />
                                 <button
                                     type="button"
@@ -417,6 +420,7 @@ export default function Register() {
                                     placeholder="Ulangi kata sandi"
                                     required
                                     autoComplete="new-password"
+                                    maxLength={10}
                                 />
                                 <button
                                     type="button"
@@ -456,6 +460,7 @@ export default function Register() {
                                     className="block w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl text-sm placeholder-gray-400 bg-gray-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200"
                                     placeholder="08xxxxxxxxxx"
                                     autoComplete="tel"
+                                    maxLength={20}
                                 />
                             </div>
                             {errors.no_telp && (

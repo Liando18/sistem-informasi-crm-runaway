@@ -12,24 +12,32 @@ class DatabaseSeeder extends Seeder
     {
         Akun::create([
             'nama' => 'Admin',
-            'email' => 'admin@runawaydenim.com',
-            'password' => bcrypt('admin123'),
+            'email' => 'admin@gmail.com',
+            'password' => 'admin',
             'role' => 'admin',
             'email_verified_at' => now(),
         ]);
 
         Akun::create([
             'nama' => 'Owner',
-            'email' => 'owner@runawaydenim.com',
-            'password' => bcrypt('admin123'),
+            'email' => 'owner@gmail.com',
+            'password' => 'owner',
             'role' => 'owner',
             'email_verified_at' => now(),
         ]);
 
         Akun::create([
-            'nama' => 'Pelanggan',
-            'email' => 'customer@runawaydenim.com',
-            'password' => bcrypt('admin123'),
+            'nama' => 'Pelanggan 1',
+            'email' => 'pelanggan1@gmail.com',
+            'password' => 'pelanggan1',
+            'role' => 'pelanggan',
+            'email_verified_at' => now(),
+        ]);
+
+        Akun::create([
+            'nama' => 'Pelanggan 2',
+            'email' => 'pelanggan2@gmail.com',
+            'password' => 'pelanggan2',
             'role' => 'pelanggan',
             'email_verified_at' => now(),
         ]);

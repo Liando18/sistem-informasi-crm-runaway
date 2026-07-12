@@ -16,7 +16,7 @@ class PasswordResetController extends Controller
     public function sendOtp(Request $request): RedirectResponse
     {
         $request->validate([
-            'email' => ['required', 'string', 'email', 'max:255', 'exists:akun,email'],
+            'email' => ['required', 'string', 'email', 'max:20', 'exists:akun,email'],
         ]);
 
         $email = $request->email;

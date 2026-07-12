@@ -6,14 +6,11 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::create('otp_codes', function (Blueprint $table) {
-            $table->id();
-            $table->string('email')->index();
+        Schema::create('otp_code', function (Blueprint $table) {
+            $table->unsignedInteger('id_otp', true);
+            $table->string('email', 20)->index();
             $table->string('otp', 6);
             $table->timestamp('expires_at');
             $table->timestamp('used_at')->nullable();
@@ -21,11 +18,8 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('otp_codes');
+        Schema::dropIfExists('otp_code');
     }
 };

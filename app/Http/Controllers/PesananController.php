@@ -52,12 +52,12 @@ class PesananController extends Controller
     public function prosesCheckout(Request $request)
     {
         $request->validate([
-            'provinsi' => 'required|string',
-            'kabupaten' => 'required|string',
-            'kecamatan' => 'required|string',
-            'kelurahan' => 'required|string',
+            'provinsi' => 'required|string|max:30',
+            'kabupaten' => 'required|string|max:30',
+            'kecamatan' => 'required|string|max:30',
+            'kelurahan' => 'required|string|max:30',
             'alamat_detail' => 'required|string',
-            'no_telp_kirim' => 'required|string',
+            'no_telp_kirim' => 'required|string|max:20',
             'latitude' => 'nullable|numeric',
             'longitude' => 'nullable|numeric',
             'catatan' => 'nullable|string',

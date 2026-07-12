@@ -2,7 +2,8 @@ import { Head, Link, usePage, useForm } from '@inertiajs/react';
 import { ArrowLeft, Save } from 'lucide-react';
 
 function formatAngka(value: string | number): string {
-    const num = typeof value === 'string' ? value.replace(/[^\d]/g, '') : String(value);
+    const str = typeof value === 'string' ? value : String(value);
+    const num = str.split('.')[0].replace(/[^\d]/g, '');
     return num.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 }
 
@@ -99,12 +100,26 @@ export default function AdminDiskonForm() {
                                     value={data.nama_diskon}
                                     onChange={(e) => setData('nama_diskon', e.target.value)}
                                     required
+                                    maxLength={20}
                                     className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
                                 />
                                 {errors.nama_diskon && <p className="text-red-500 text-sm mt-1">{errors.nama_diskon}</p>}
                             </div>
 
                             {isVoucher && (
+                                <>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Kode Voucher</label>
+                                    <input
+                                        type="text"
+                                        value={data.kode}
+                                        onChange={(e) => setData('kode', e.target.value)}
+                                        placeholder="FREESHIP10"
+                                        maxLength={15}
+                                        className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+                                    />
+                                    {errors.kode && <p className="text-red-500 text-sm mt-1">{errors.kode}</p>}
+                                </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Maks Penggunaan per User</label>
                                     <input
@@ -116,6 +131,7 @@ export default function AdminDiskonForm() {
                                     />
                                     {errors.maks_penggunaan && <p className="text-red-500 text-sm mt-1">{errors.maks_penggunaan}</p>}
                                 </div>
+                                </>
                             )}
 
                             {!isVoucher && (

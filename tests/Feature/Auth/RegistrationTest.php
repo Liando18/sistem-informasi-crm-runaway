@@ -19,7 +19,7 @@ test('can send otp to email', function () {
     ]);
 
     $response->assertRedirect();
-    $this->assertDatabaseHas('otp_codes', ['email' => 'test@example.com']);
+    $this->assertDatabaseHas('otp_code', ['email' => 'test@example.com']);
     Mail::assertSent(OtpMail::class);
 
     expect(session('otp_register.name'))->toBe('Test User');

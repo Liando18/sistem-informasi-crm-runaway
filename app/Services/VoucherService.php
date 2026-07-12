@@ -11,7 +11,7 @@ class VoucherService
     {
         for ($i = 1; $i <= 2; $i++) {
             Diskon::create([
-                'nama_diskon' => 'Voucher Ongkir New User #'.$i,
+                'nama_diskon' => 'Voucher New #'.$i,
                 'jenis_diskon' => 'voucher_ongkir',
                 'pemilik_id' => $akun->id_akun,
                 'maks_penggunaan' => 1,
@@ -28,7 +28,7 @@ class VoucherService
     public static function buatVoucherLoyal(Akun $akun): void
     {
         $sudahAda = Diskon::where('pemilik_id', $akun->id_akun)
-            ->where('nama_diskon', 'like', 'Voucher Ongkir Loyal%')
+            ->where('nama_diskon', 'like', 'Voucher Loyal%')
             ->where('status', 'aktif')
             ->exists();
 
@@ -37,7 +37,7 @@ class VoucherService
         }
 
         Diskon::create([
-            'nama_diskon' => 'Voucher Ongkir Loyal',
+            'nama_diskon' => 'Voucher Loyal',
             'jenis_diskon' => 'voucher_ongkir',
             'pemilik_id' => $akun->id_akun,
             'maks_penggunaan' => 1,

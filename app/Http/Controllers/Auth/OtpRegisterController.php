@@ -18,7 +18,7 @@ class OtpRegisterController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:30'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:akun,email'],
+            'email' => ['required', 'string', 'email', 'max:20', 'unique:akun,email'],
         ]);
 
         OtpCode::where('email', $request->email)->delete();

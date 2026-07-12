@@ -339,6 +339,7 @@ export default function AdminProdukForm() {
                                                     value={variasi.ukuran}
                                                     onChange={e => handleVariasiChange(i, 'ukuran', e.target.value)}
                                                     placeholder="M, L, XL..."
+                                                    maxLength={20}
                                                     className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
                                                 />
                                             </div>
@@ -349,6 +350,7 @@ export default function AdminProdukForm() {
                                                     value={variasi.warna}
                                                     onChange={e => handleVariasiChange(i, 'warna', e.target.value)}
                                                     placeholder="Hitam, Putih..."
+                                                    maxLength={20}
                                                     className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
                                                 />
                                             </div>

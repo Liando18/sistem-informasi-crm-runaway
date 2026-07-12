@@ -1,0 +1,260 @@
+@startuml
+skinparam class {
+  BackgroundColor #F8F8FF
+  BorderColor #333333
+  FontColor #000000
+  HeaderBackgroundColor #A9D0F5
+  HeaderFontColor #000000
+}
+skinparam classAttributeIconSize 0
+
+hide empty methods
+hide stereotype
+hide circle
+
+' ====================================================================
+' ENTITY CLASSES
+' ====================================================================
+
+class Akun {
+- id_akun : int
+- nama : varchar(30)
+- email : varchar(100)
+- password : varchar(10)
+- role : varchar(20)
+- no_telp : varchar(20)
+- alamat : text
+- email_verified_at : datetime
+- created_at : datetime
+- updated_at : datetime
+--
+- create()
+- read()
+- update()
+- delete()
+}
+
+class Chat {
+- id_chat : int
+- akun_pengirim : int
+- akun_penerima : int
+- pesan : text
+- dibaca : boolean
+- created_at : datetime
+- updated_at : datetime
+--
+- create()
+- read()
+}
+
+class DetailPesanan {
+- id_detail : int
+- pesanan_id : int
+- produk_id : int
+- produk_variasi_id : int
+- jumlah : int
+- harga : decimal(12,2)
+- subtotal : decimal(12,2)
+- created_at : datetime
+- updated_at : datetime
+--
+- read()
+}
+
+class Diskon {
+- id_diskon : int
+- nama_diskon : varchar(30)
+- jenis_diskon : varchar(20)
+- pemilik_id : int
+- maks_penggunaan : int
+- digunakan : int
+- tipe : varchar(10)
+- nilai : decimal(12,2)
+- kode : varchar(30)
+- tanggal_mulai : date
+- tanggal_berakhir : date
+- min_belanja : decimal(12,2)
+- status : varchar(10)
+- created_at : datetime
+- updated_at : datetime
+--
+- create()
+- read()
+- update()
+- delete()
+}
+
+class Kategori {
+- id_kategori : int
+- nama_kategori : varchar(30)
+- deskripsi : text
+- created_at : datetime
+- updated_at : datetime
+--
+- create()
+- read()
+- update()
+- delete()
+}
+
+class Keranjang {
+- id_keranjang : int
+- akun_id : int
+- produk_id : int
+- produk_variasi_id : int
+- jumlah : int
+- created_at : datetime
+- updated_at : datetime
+--
+- create()
+- read()
+- update()
+- delete()
+}
+
+class OtpCode {
+- id_otp : int
+- email : varchar(100)
+- otp : varchar(6)
+- expires_at : datetime
+- used_at : datetime
+- created_at : datetime
+- updated_at : datetime
+}
+
+class Pembayaran {
+- id_pembayaran : int
+- pesanan_id : int
+- tgl_bayar : datetime
+- metode : varchar(30)
+- jumlah : decimal(12,2)
+- snap_token : text
+- snap_redirect_url : text
+- midtrans_transaction_id : varchar(100)
+- midtrans_status : varchar(30)
+- status : varchar(10)
+- created_at : datetime
+- updated_at : datetime
+--
+- create()
+- read()
+- update()
+}
+
+class Pesanan {
+- id_pesanan : int
+- akun_id : int
+- diskon_id : int
+- tgl_pesanan : datetime
+- status : varchar(20)
+- total_harga : decimal(12,2)
+- potongan : decimal(12,2)
+- ongkir : decimal(12,2)
+- grand_total : decimal(12,2)
+- catatan : text
+- provinsi : varchar(50)
+- kabupaten : varchar(50)
+- kecamatan : varchar(50)
+- kelurahan : varchar(50)
+- alamat_detail : text
+- no_telp_kirim : varchar(20)
+- latitude : varchar(20)
+- longitude : varchar(20)
+- created_at : datetime
+- updated_at : datetime
+--
+- read()
+- update()
+}
+
+class Produk {
+- id_produk : int
+- kategori_id : int
+- diskon_id : int
+- nama_produk : varchar(30)
+- deskripsi : text
+- harga : decimal(12,2)
+- stok : int
+- berat : decimal(8,2)
+- created_at : datetime
+- updated_at : datetime
+--
+- create()
+- read()
+- update()
+- delete()
+}
+
+class ProdukGambar {
+- id_produk_gambar : int
+- produk_id : int
+- gambar : varchar(255)
+- is_utama : boolean
+- created_at : datetime
+- updated_at : datetime
+--
+- create()
+- read()
+- update()
+- delete()
+}
+
+class ProdukVariasi {
+- id_produk_variasi : int
+- produk_id : int
+- ukuran : varchar(20)
+- warna : varchar(30)
+- stok : int
+- created_at : datetime
+- updated_at : datetime
+--
+- create()
+- read()
+- update()
+- delete()
+}
+
+class Testimoni {
+- id_testimoni : int
+- akun_id : int
+- produk_id : int
+- rating : int
+- komentar : text
+- status : varchar(15)
+- created_at : datetime
+- updated_at : datetime
+--
+- create()
+- read()
+- update()
+- delete()
+}
+
+' ====================================================================
+' RELATIONSHIPS
+' ====================================================================
+
+Akun "1" -right-> "N" Keranjang
+Akun "1" -right-> "N" Pesanan
+Akun "1" -right-> "N" Testimoni
+Akun "1" --> "N" Chat
+Akun "1" -right-> "N" Diskon
+
+Kategori "1" -down-> "N" Produk
+
+Diskon "1" -down-> "N" Produk
+Diskon "1" -down-> "N" Pesanan
+
+Produk "1" -down-> "N" Keranjang
+Produk "1" -down-> "N" DetailPesanan
+Produk "1" -down-> "N" Testimoni
+Produk "1" -down-> "N" ProdukGambar
+Produk "1" -down-> "N" ProdukVariasi
+
+ProdukVariasi "1" -right-> "N" DetailPesanan
+ProdukVariasi "1" -right-> "N" Keranjang
+
+Pesanan "1" -down-> "1" Pembayaran
+Pesanan "1" -down-> "N" DetailPesanan
+
+@enduml

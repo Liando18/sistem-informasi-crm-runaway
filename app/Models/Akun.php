@@ -24,7 +24,6 @@ class Akun extends Authenticatable
         'role',
         'no_telp',
         'alamat',
-        'foto',
     ];
 
     protected $hidden = [

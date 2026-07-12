@@ -14,7 +14,6 @@ export default function Login({ status, canResetPassword }: Props) {
     const { data, setData, post, processing, errors, reset } = useForm({
         email: '',
         password: '',
-        remember: false,
     })
 
     const [showPassword, setShowPassword] = useState(false)
@@ -58,6 +57,7 @@ export default function Login({ status, canResetPassword }: Props) {
                             required
                             autoFocus
                             autoComplete="email"
+                            maxLength={20}
                         />
                     </div>
                     {errors.email && (
@@ -97,6 +97,7 @@ export default function Login({ status, canResetPassword }: Props) {
                             placeholder="Masukkan kata sandi"
                             required
                             autoComplete="current-password"
+                            maxLength={10}
                         />
                         <button
                             type="button"
@@ -116,27 +117,6 @@ export default function Login({ status, canResetPassword }: Props) {
                             {errors.password}
                         </p>
                     )}
-                </div>
-
-                <div className="flex items-center justify-between">
-                    <label className="flex items-center gap-2.5 cursor-pointer group">
-                        <div className="relative">
-                            <input
-                                id="remember"
-                                type="checkbox"
-                                checked={data.remember}
-                                onChange={(e) => setData('remember', e.target.checked)}
-                                className="peer sr-only"
-                            />
-                            <div className="w-5 h-5 border-2 border-gray-300 rounded-md peer-checked:border-primary-600 peer-checked:bg-primary-600 transition-all duration-200 group-hover:border-primary-400" />
-                            <div className="absolute inset-0 flex items-center justify-center peer-checked:opacity-100 opacity-0 transition-opacity duration-200">
-                                <svg className="w-3 h-3 text-white" viewBox="0 0 12 12" fill="none">
-                                    <path d="M2 6L5 9L10 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                </svg>
-                            </div>
-                        </div>
-                        <span className="text-sm text-gray-600 group-hover:text-gray-800 transition-colors">Ingat Saya</span>
-                    </label>
                 </div>
 
                 <button

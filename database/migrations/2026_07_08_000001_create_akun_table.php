@@ -9,16 +9,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('akun', function (Blueprint $table) {
-            $table->integer('id_akun', true);
+            $table->unsignedInteger('id_akun', true);
             $table->string('nama', 30);
-            $table->string('email')->unique();
-            $table->string('password');
+            $table->string('email', 20)->unique();
+            $table->string('password', 10);
             $table->enum('role', ['pelanggan', 'admin', 'owner'])->default('pelanggan');
             $table->string('no_telp', 20)->nullable();
             $table->text('alamat')->nullable();
-            $table->string('foto')->nullable();
             $table->timestamp('email_verified_at')->nullable();
-            $table->rememberToken();
             $table->timestamps();
         });
     }

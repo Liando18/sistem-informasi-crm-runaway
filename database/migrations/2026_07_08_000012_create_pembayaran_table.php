@@ -9,18 +9,19 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('pembayaran', function (Blueprint $table) {
-            $table->integer('id_pembayaran', true);
-            $table->integer('pesanan_id');
-            $table->foreign('pesanan_id')->references('id_pesanan')->on('pesanan');
+            $table->unsignedInteger('id_pembayaran', true);
+            $table->unsignedInteger('pesanan_id');
             $table->dateTime('tgl_bayar')->nullable();
-            $table->string('metode', 30)->nullable();
-            $table->decimal('jumlah', 8, 2);
-            $table->string('snap_token')->nullable();
-            $table->string('snap_redirect_url')->nullable();
+            $table->string('metode', 20)->nullable();
+            $table->decimal('jumlah', 12, 2);
+            $table->text('snap_token')->nullable();
+            $table->text('snap_redirect_url')->nullable();
             $table->string('midtrans_transaction_id')->nullable();
-            $table->string('midtrans_status')->nullable();
+            $table->string('midtrans_status', 20)->nullable();
             $table->enum('status', ['pending', 'sukses', 'gagal'])->default('pending');
             $table->timestamps();
+
+            $table->foreign('pesanan_id')->references('id_pesanan')->on('pesanan');
         });
     }
 
