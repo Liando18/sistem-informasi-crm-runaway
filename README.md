@@ -284,6 +284,10 @@ pesanan ──→ pembayaran (1:1)
 
 ---
 
+## 👨‍💻 Developer
+
+**Aprilian Gevindo, M.Kom.**
+
 ## 📝 Lisensi
 
 [MIT](LICENSE)
